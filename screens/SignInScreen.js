@@ -3,7 +3,8 @@ import {
   View,
   StyleSheet,
   AsyncStorage,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  ToastAndroid
 } from 'react-native';
 import {
   Button,
@@ -11,9 +12,11 @@ import {
   View as ShoutemView,
   getTheme,
   TextInput,
+  Heading
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
+import axios from 'axios';
 
 let theme = _.merge(getTheme(), {
   'shoutem.ui.View': {
@@ -50,8 +53,50 @@ export default class SignInScreen extends Component {
     title: 'Sign In',
   }
 
-  login = async() => {
-    await AsyncStorage.setItem('userToken', 'farizink')
+  state = { email: '', password: '', name: '', usermail: '', meta: '', error: '' };
+
+  async onButtonPress() {
+    const { email, password } = this.state;
+
+    const data = {
+      email,
+      password
+    };
+
+    if (this.checkInput(email, password)) {
+      await axios.post('http://wangku.herokuapp.com/api/login', data)
+        .then(response => this.setState({
+          name: response.data.data.name,
+          usermail: response.data.data.email,
+          meta: response.data.meta.token,
+          error: response.data.error
+        }))
+        .catch(error => console.log(error));
+      if (this.state.error != null) {
+        ToastAndroid.show('Wrong Credential.', ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show('Welcome ' + this.state.name, ToastAndroid.SHORT);
+        this.login();
+      }
+    } else {
+      ToastAndroid.show('Email & Password Cannot Empty.', ToastAndroid.SHORT);
+    }
+  }
+
+  checkInput(email, password) {
+    let successInput = false;
+
+    if (email !== '' && password !== '') {
+      successInput = true;
+    }
+
+    return successInput;
+  }
+
+  async login() {
+    await AsyncStorage.setItem('name', this.state.name)
+    await AsyncStorage.setItem('email', this.state.usermail)
+    await AsyncStorage.setItem('apiToken', this.state.meta)
 
     this.props.navigation.navigate('AuthLoading')
   }
@@ -66,13 +111,17 @@ export default class SignInScreen extends Component {
                 styleName="textInput"
                 keyboardType="email-address"
                 autoFocus={true}
+                value={this.state.email}
+                onChangeText={email => this.setState({ email })}
               />
               <TextInput
                 placeholder={'Password'}
                 secureTextEntry
                 styleName="textInput"
+                value={this.state.password}
+                onChangeText={password => this.setState({ password })}
               />
-              <Button styleName="secondary register" onPress={this.login}>
+              <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
                 <Text>LOGIN</Text>
               </Button>
             </ShoutemView>

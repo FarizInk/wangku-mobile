@@ -12,6 +12,7 @@ import {
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
+import axios from 'axios';
 
 let theme = _.merge(getTheme(), {
   'shoutem.ui.Button': {

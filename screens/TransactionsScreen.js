@@ -15,6 +15,7 @@ import {
   Icon,
   NavigationBar,
   Title,
+  Heading
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -37,6 +38,12 @@ let theme = _.merge(getTheme(), {
     '.minus': {
       color: 'red'
     },
+  },
+  'shoutem.ui.Heading': {
+    '.header': {
+      marginTop: 35,
+      textAlign: 'center',
+    }
   }
 });
 
@@ -46,6 +53,7 @@ export default class TransactionsScreen extends Component {
     return (
       <StyleProvider style={theme}>
         <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
+        <Heading styleName="header">Wangku</Heading>
           <View styleName="vertical">
             <TouchableOpacity>
               <Row styleName="container">

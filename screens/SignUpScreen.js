@@ -15,6 +15,7 @@ import {
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
+import axios from 'axios';
 
 let theme = _.merge(getTheme(), {
   'shoutem.ui.View': {
@@ -49,41 +50,6 @@ export default class SignUpScreen extends Component {
     title: 'Sign Up',
   }
 
-  constructor(props) {
-   super(props)
-
-   this.state = {
-     name: '',
-     username: '',
-     email: '',
-     password: '',
-   }
-  }
-
-  AddUser = () =>{
-     fetch('192.168.43.7:8000/api/register', {
-       method: 'POST',
-       headers: {
-         'Accept': 'application/json',
-         'Content-Type': 'application/json',
-       },
-       body: JSON.stringify({
-         name : this.state.name,
-         username : this.state.username,
-         email : this.state.email,
-         password: this.state.password
-       })
-     }).then((response) => response.json())
-         .then((responseJson) => {
-
-           // Showing response message coming from server after inserting records.
-           Alert.alert(responseJson);
-
-         }).catch((error) => {
-           console.error(error);
-         });
-  }
-
   render() {
     return (
       <StyleProvider style={theme}>
@@ -94,11 +60,6 @@ export default class SignUpScreen extends Component {
                 styleName="textInput"
                 autoFocus={true}
                 onChangeText={ TextInputValue => this.setState({ name : TextInputValue }) }
-              />
-              <TextInput
-                placeholder={'Username'}
-                styleName="textInput"
-                onChangeText={ TextInputValue => this.setState({ username : TextInputValue }) }
               />
               <TextInput
                 placeholder={'Email'}

@@ -80,8 +80,9 @@ const AppTabNavigator = createMaterialTopTabNavigator({
 }, {
   initialRouteName: 'Home',
   order: ['Transactions', 'Group', 'Home', 'Search', 'Profile'],
-  swipeEnabled: true,
-  shifting: true,
+  swipeEnabled: false,
+  shifting: false,
+  animationEnabled: true,
   tabBarPosition: 'bottom',
   navigationOptions: {
     tabBarVisible: true,
@@ -104,6 +105,7 @@ const AppStackNavigator = createStackNavigator({
   AppTabNavigator: {
     screen: AppTabNavigator,
     navigationOptions: ({ navigation }) => ({
+      header: null,
       title: 'Wangku',
       headerRight: (
         <TouchableOpacity onPress={() => navigation.navigate('AddTransaction')}>
