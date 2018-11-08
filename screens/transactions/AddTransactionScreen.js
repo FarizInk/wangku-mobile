@@ -88,7 +88,7 @@ export default class AddTransactionScreen extends Component {
         headers: {
           'Accept': "application/json",
           'Content-Type' : "application/json",
-          'Authorization' : "Bearer " + this.state.token,
+          'Authorization' : "Bearer " + token,
         }
     };
 
@@ -135,6 +135,12 @@ export default class AddTransactionScreen extends Component {
     }
 
     return successInput;
+  }
+
+  componentWillUnmount() {
+    const {params} = this.props.navigation.state;
+    // console.warn(params.refresh);
+    params.getTransactions();
   }
 
   render() {

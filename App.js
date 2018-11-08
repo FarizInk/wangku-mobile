@@ -21,7 +21,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import TransactionsScreen from './screens/TransactionsScreen';
 import SearchScreen from './screens/SearchScreen';
 import GroupScreen from './screens/GroupScreen';
-import AddTransactionScreen from './screens/AddTransactionScreen';
+import AddTransaction from './screens/transactions/AddTransactionScreen';
 
 const AuthStackNavigator = createStackNavigator({
   Welcome: WelcomeScreen,
@@ -80,9 +80,9 @@ const AppTabNavigator = createMaterialTopTabNavigator({
 }, {
   initialRouteName: 'Home',
   order: ['Transactions', 'Group', 'Home', 'Search', 'Profile'],
-  swipeEnabled: false,
+  swipeEnabled: true,
   shifting: false,
-  animationEnabled: true,
+  animationEnabled: false,
   tabBarPosition: 'bottom',
   navigationOptions: {
     tabBarVisible: true,
@@ -107,16 +107,9 @@ const AppStackNavigator = createStackNavigator({
     navigationOptions: ({ navigation }) => ({
       header: null,
       title: 'Wangku',
-      headerRight: (
-        <TouchableOpacity onPress={() => navigation.navigate('AddTransaction')}>
-          <View style={{ paddingHorizontal: 10}} >
-            <Icon name="plus-button" size={24} style={{ color: '#311B92'}} />
-          </View>
-        </TouchableOpacity>
-      )
     })
   },
-  AddTransaction: AddTransactionScreen,
+  AddTransaction: AddTransaction,
 });
 
 // const AppDrawerNavigator = createDrawerNavigator({
