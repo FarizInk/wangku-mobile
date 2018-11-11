@@ -168,12 +168,11 @@ export default class AddTransactionScreen extends Component {
   async componentWillMount() {
     this.setState({isLoading: true});
     await this.getTransactions();
-    (this.state.selectedStatus == undefined) ? ((this.state.oldStatus == 'plus') ?  this.setState({ selectedStatus: this.state.status[1] }) : this.setState({ selectedStatus: this.state.status[1] })) : false;
+    (this.state.selectedStatus == undefined) ? ((this.state.oldStatus == 'plus') ?  this.setState({ selectedStatus: this.state.status[1] }) : this.setState({ selectedStatus: this.state.status[2] })) : false;
   }
 
   renderTransaction() {
     let selectedStatus = this.state.selectedStatus || this.state.status[0];
-    (this.state.selectedStatus == undefined) ? ((this.state.oldStatus == 'plus') ? selectedStatus = this.state.status[1] : selectedStatus = this.state.status[2]) : false;
     return (
       <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
         <ShoutemView styleName="vertical h-center content" >
