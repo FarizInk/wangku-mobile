@@ -94,7 +94,7 @@ export default class TransactionsScreen extends Component {
       <TouchableOpacity
         key={ transaction.id }
         onPress={() => this.props.navigation.navigate('DetailTransaction',
-          { id: transaction.id }
+          { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
         )}
       >
         <Row styleName="container">

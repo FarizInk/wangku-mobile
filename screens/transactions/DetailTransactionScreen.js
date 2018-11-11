@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   AsyncStorage,
   ToastAndroid,
+  ActivityIndicator
 } from 'react-native';
 import {
   Button,
@@ -34,7 +35,7 @@ export default class AddTransactionScreen extends Component {
     title: 'Detail Transaction',
   }
 
-  state = { id: '', token: '', status: '', amount: '', description: '', date: '', time: '' }
+  state = { id: '', token: '', status: '', amount: '', description: '', date: '', time: '', isLoading: true }
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
@@ -58,33 +59,70 @@ export default class AddTransactionScreen extends Component {
         amount: response.data.data.amount,
         description: response.data.data.description,
         date: response.data.data.date,
-        time: response.data.data.time
+        time: response.data.data.time,
+        isLoading: false
       }))
       .catch(error => console.warn(error.response.data));
   }
 
   async componentWillMount() {
+    this.setState({isLoading: true});
     await this.getTransactions();
+  }
+
+  componentWillUnmount() {
+    const {params} = this.props.navigation.state;
+    this.setState({isLoading: false});
+    // console.warn(params.refresh);
+    params.getTransactions();
+  }
+
+  renderTransaction() {
+    return (
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <ShoutemView styleName="vertical h-start" style={{ marginLeft: 12, marginTop: 12 }}>
+          <Text>Status: { this.state.status }</Text>
+          <Text>Amount: { this.state.amount }</Text>
+          <Text>Description: { this.state.description }</Text>
+          <Text>Date: { this.state.date }</Text>
+          <Text>Time: { this.state.time }</Text>
+          <Button
+            styleName="secondary"
+            onPress={() => this.props.navigation.navigate('EditTransaction',
+              { id: this.state.id, getTransactions: this.componentWillMount.bind(this) }
+            )}
+          >
+            <Icon name="edit" />
+            <Text>EDIT</Text>
+          </Button>
+        </ShoutemView>
+      </View>
+    );
   }
 
   render() {
     return (
       <StyleProvider style={theme}>
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
-          <ShoutemView styleName="vertical h-start" style={{ marginLeft: 12, marginTop: 12 }}>
-            <Text>Status: { this.state.status }</Text>
-            <Text>Amount: { this.state.amount }</Text>
-            <Text>Description: { this.state.description }</Text>
-            <Text>Date: { this.state.date }</Text>
-            <Text>Time: { this.state.time }</Text>
-            <Button styleName="secondary">
-              <Icon name="edit" />
-              <Text>EDIT</Text>
-            </Button>
-          </ShoutemView>
-        </View>
+        {this.state.isLoading ? (
+          <View style={styles.container}>
+            <ActivityIndicator
+              animating
+              size="large"
+              style={styles.activityIndicator}
+            />
+          </View>
+        ) : this.renderTransaction()}
       </StyleProvider>
     );
   }
 
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
