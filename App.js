@@ -22,6 +22,7 @@ import TransactionsScreen from './screens/TransactionsScreen';
 import SearchScreen from './screens/SearchScreen';
 import GroupScreen from './screens/GroupScreen';
 import AddTransaction from './screens/transactions/AddTransactionScreen';
+import DetailTransaction from './screens/transactions/DetailTransactionScreen';
 
 const AuthStackNavigator = createStackNavigator({
   Welcome: WelcomeScreen,
@@ -110,6 +111,7 @@ const AppStackNavigator = createStackNavigator({
     })
   },
   AddTransaction: AddTransaction,
+  DetailTransaction: DetailTransaction,
 });
 
 // const AppDrawerNavigator = createDrawerNavigator({

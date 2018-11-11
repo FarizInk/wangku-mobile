@@ -91,7 +91,12 @@ export default class TransactionsScreen extends Component {
 
   renderTransactions() {
     return this.state.transactions.map(transaction =>
-      <TouchableOpacity key={ transaction.id }>
+      <TouchableOpacity
+        key={ transaction.id }
+        onPress={() => this.props.navigation.navigate('DetailTransaction',
+          { id: transaction.id }
+        )}
+      >
         <Row styleName="container">
           <View styleName="vertical space-between content">
             <Subtitle>{ transaction.description }</Subtitle>
@@ -132,8 +137,8 @@ export default class TransactionsScreen extends Component {
             buttonColor="rgba(231,76,60,1)"
             verticalOrientation="up"
             onPress={() => this.props.navigation.navigate('AddTransaction',
-            { getTransactions: this._onRefresh.bind(this) }
-          )}
+              { getTransactions: this._onRefresh.bind(this) }
+            )}
           />
         </ViewReact>
       </StyleProvider>
