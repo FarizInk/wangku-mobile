@@ -147,7 +147,7 @@ export default class AddTransactionScreen extends Component {
       }
     }
 
-    axios.get('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, config)
+    await axios.get('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, config)
       .then(response => this.setState({
         oldStatus: response.data.data.status,
         amount: response.data.data.amount,
@@ -157,6 +157,9 @@ export default class AddTransactionScreen extends Component {
         isLoading: false
       }))
       .catch(error => console.warn(error.response.data));
+
+      (this.state.oldStatus == "plus") ? (this.setState({ selectedStatus: this.state.status[1] })) : (this.setState({ selectedStatus: this.state.status[2] }));
+
   }
 
   componentWillUnmount() {
@@ -168,7 +171,6 @@ export default class AddTransactionScreen extends Component {
   async componentWillMount() {
     this.setState({isLoading: true});
     await this.getTransactions();
-    (this.state.selectedStatus == undefined) ? ((this.state.oldStatus == 'plus') ?  this.setState({ selectedStatus: this.state.status[1] }) : this.setState({ selectedStatus: this.state.status[2] })) : false;
   }
 
   renderTransaction() {

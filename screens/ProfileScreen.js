@@ -9,11 +9,9 @@ import {
   Text,
   View,
   getTheme,
-  Row,
-  TextInput,
-  Icon,
-  NavigationBar,
-  Title,
+  Image,
+  Lightbox,
+  Icon
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -46,11 +44,25 @@ logout = async() => {
     return (
       <StyleProvider style={theme}>
         <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
-        <View styleName="horizontal">
-        <Button styleName="full-width secondary" onPress={this.logout}>
-          <Text>LOGOUT</Text>
-        </Button>
-        </View>
+          <View styleName="vertical h-center">
+            <Lightbox>
+              <Image
+                styleName="medium-avatar"
+                source={{ uri: 'https://shoutem.github.io/img/ui-toolkit/examples/image-3.png'}}
+              />
+            </Lightbox>
+            <View styleName="horizontal">
+              <Button styleName="confirmation">
+                <Icon name="edit" />
+                <Text>Update</Text>
+              </Button>
+
+              <Button styleName="confirmation secondary" onPress={this.logout} style={{ marginTop: 25 }}>
+                <Icon name="exit-to-app" />
+                <Text>Logout</Text>
+              </Button>
+            </View>
+          </View>
         </ViewReact>
       </StyleProvider>
     );
