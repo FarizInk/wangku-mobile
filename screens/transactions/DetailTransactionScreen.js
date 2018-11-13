@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  View,
+  View as ViewReact,
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
@@ -11,7 +11,7 @@ import {
 import {
   Button,
   Text,
-  View as ShoutemView,
+  View,
   getTheme,
   TextInput,
   DropDownMenu,
@@ -79,38 +79,61 @@ export default class AddTransactionScreen extends Component {
 
   renderTransaction() {
     return (
-      <View style={{ flex: 1, backgroundColor: 'white' }}>
-        <ShoutemView styleName="vertical h-start" style={{ marginLeft: 12, marginTop: 12 }}>
+      <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
+        <View styleName="vertical h-start" style={{ marginLeft: 12, marginTop: 12 }}>
           <Text>Status: { this.state.status }</Text>
           <Text>Amount: { this.state.amount }</Text>
           <Text>Description: { this.state.description }</Text>
           <Text>Date: { this.state.date }</Text>
           <Text>Time: { this.state.time }</Text>
-          <Button
-            styleName="secondary"
-            onPress={() => this.props.navigation.navigate('EditTransaction',
-              { id: this.state.id, getTransactions: this.componentWillMount.bind(this) }
-            )}
-          >
-            <Icon name="edit" />
-            <Text>EDIT</Text>
-          </Button>
-        </ShoutemView>
-      </View>
+          <View styleName="horizontal h-center">
+            <Button
+              styleName="secondary"
+              onPress={() => this.props.navigation.navigate('EditTransaction',
+                { id: this.state.id, getTransactions: this.componentWillMount.bind(this) }
+              )}
+            >
+              <Icon name="edit" />
+              <Text>EDIT</Text>
+            </Button>
+            <Button
+              onPress={() => this.deleteTransaction()}
+            >
+              <Icon name="close" />
+              <Text>DELETE</Text>
+            </Button>
+          </View>
+        </View>
+      </ViewReact>
     );
+  }
+
+  deleteTransaction() {
+    var config = {
+      headers: {
+        'Accept': "application/json",
+        'Authorization': "Bearer " + this.state.token
+      }
+    }
+
+    axios.delete('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, config)
+      .then(response => ToastAndroid.show("Successfully delete " + response.data.data.description, ToastAndroid.SHORT))
+      .catch(error => console.log(error.response));
+
+    this.props.navigation.goBack();
   }
 
   render() {
     return (
       <StyleProvider style={theme}>
         {this.state.isLoading ? (
-          <View style={styles.container}>
+          <ViewReact style={styles.container}>
             <ActivityIndicator
               animating
               size="large"
               style={styles.activityIndicator}
             />
-          </View>
+          </ViewReact>
         ) : this.renderTransaction()}
       </StyleProvider>
     );

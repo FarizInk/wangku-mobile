@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  View,
+  View as ViewReact,
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
@@ -11,7 +11,7 @@ import {
 import {
   Button,
   Text,
-  View as ShoutemView,
+  View,
   getTheme,
   TextInput,
   DropDownMenu,
@@ -177,7 +177,7 @@ export default class AddTransactionScreen extends Component {
     let selectedStatus = this.state.selectedStatus || this.state.status[0];
     return (
       <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
-        <ShoutemView styleName="vertical h-center content" >
+        <View styleName="vertical h-center content" >
           <DropDownMenu
             styleName="horizontal"
             options={this.state.status}
@@ -202,7 +202,7 @@ export default class AddTransactionScreen extends Component {
           <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
             <Text>Update</Text>
           </Button>
-        </ShoutemView>
+        </View>
       </TouchableWithoutFeedback>
     );
   }
@@ -211,13 +211,13 @@ export default class AddTransactionScreen extends Component {
     return (
       <StyleProvider style={theme}>
           {this.state.isLoading ? (
-            <View style={styles.container}>
+            <ViewReact style={styles.container}>
               <ActivityIndicator
                 animating
                 size="large"
                 style={styles.activityIndicator}
               />
-            </View>
+            </ViewReact>
           ) : this.renderTransaction()}
       </StyleProvider>
     );

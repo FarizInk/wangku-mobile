@@ -90,22 +90,28 @@ export default class TransactionsScreen extends Component {
   }
 
   renderTransactions() {
-    return this.state.transactions.map(transaction =>
-      <TouchableOpacity
-        key={ transaction.id }
-        onPress={() => this.props.navigation.navigate('DetailTransaction',
-          { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
-        )}
-      >
-        <Row styleName="container">
-          <View styleName="vertical space-between content">
-            <Subtitle>{ transaction.description }</Subtitle>
-            <Caption>{ transaction.created }  ·  { transaction.time }</Caption>
-          </View>
-          <Button styleName="right-icon"><Icon name={transaction.status + "-button"} styleName={ transaction.status } /><Text styleName={ transaction.status }>{ transaction.amount }</Text></Button>
-        </Row>
-      </TouchableOpacity>
-    );
+    if (this.state.transactions == "") {
+      return (
+        <Text style={{ textAlign: 'center'}}>You Have No Transaction Today.</Text>
+      );
+    } else {
+      return this.state.transactions.map(transaction =>
+        <TouchableOpacity
+          key={ transaction.id }
+          onPress={() => this.props.navigation.navigate('DetailTransaction',
+            { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
+          )}
+        >
+          <Row styleName="container">
+            <View styleName="vertical space-between content">
+              <Subtitle>{ transaction.description }</Subtitle>
+              <Caption>{ transaction.created }  ·  { transaction.time }</Caption>
+            </View>
+            <Button styleName="right-icon"><Icon name={transaction.status + "-button"} styleName={ transaction.status } /><Text styleName={ transaction.status }>{ transaction.amount }</Text></Button>
+          </Row>
+        </TouchableOpacity>
+      );
+    }
   }
 
   _onRefresh = () => {
