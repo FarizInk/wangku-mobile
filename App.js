@@ -8,6 +8,7 @@ import {
 import { Font, AppLoading } from "expo";
 import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { createSwitchNavigator, createStackNavigator, createDrawerNavigator, createBottomTabNavigator, createMaterialTopTabNavigator } from 'react-navigation';
+import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 import {
   Icon
 } from '@shoutem/ui';
@@ -33,7 +34,7 @@ const AuthStackNavigator = createStackNavigator({
 
 });
 
-const AppTabNavigator = createMaterialTopTabNavigator({
+const AppTabNavigator = createMaterialBottomTabNavigator({
   Home: {
     screen: HomeScreen,
     navigationOptions: {
@@ -52,10 +53,10 @@ const AppTabNavigator = createMaterialTopTabNavigator({
       )
     }
   },
-  Transactions: {
+  Today: {
     screen: TransactionsScreen,
     navigationOptions: {
-      tabBarLabel: 'Transactions',
+      tabBarLabel: 'Today',
       tabBarIcon: ({tintColor}) => (
         <Icon name="receipt" style={{color: tintColor}} size={24}/>
       )
@@ -81,7 +82,7 @@ const AppTabNavigator = createMaterialTopTabNavigator({
   },
 }, {
   initialRouteName: 'Home',
-  order: ['Transactions', 'Group', 'Home', 'Search', 'Profile'],
+  order: ['Today', 'Group', 'Home', 'Search', 'Profile'],
   swipeEnabled: true,
   shifting: false,
   animationEnabled: false,

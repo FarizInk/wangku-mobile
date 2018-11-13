@@ -18,6 +18,7 @@ import {
   NavigationBar,
   Title,
   Heading,
+  ImageBackground
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -101,8 +102,34 @@ export default class GroupScreen extends Component {
   render() {
     return (
       <StyleProvider style={theme}>
-        <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
-          <Heading styleName="header">Groups</Heading>
+        <ViewReact style={{ flex: 1, backgroundColor: '#E8EAF6' }}>
+          <ViewReact style={{ height: 23.7, backgroundColor: '#311B92' }}>
+          </ViewReact>
+          <ViewReact>
+            <ImageBackground
+              style={{ height: 70, backgroundColor: '#311B92', shadowColor: '#000', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.8, elevation: 5 }}
+            >
+            <NavigationBar
+              styleName="clear"
+              leftComponent={(
+                <Button>
+                  <Text style={{ marginLeft: 15, color: '#FFDE03' }}>All</Text>
+                </Button>
+              )}
+              centerComponent={<Title style={{ fontSize: 17 }}>Groups</Title>}
+              rightComponent={(
+                <Button
+                  style={{ marginRight: 15, backgroundColor: '#FFDE03', borderRadius: 5 }}
+                  onPress={() => this.props.navigation.navigate('AddTransaction',
+                    { getTransactions: this._onRefresh.bind(this) }
+                  )}
+                >
+                  <Icon name="plus-button" style={{ color: 'black' }} />
+                </Button>
+              )}
+            />
+            </ImageBackground>
+          </ViewReact>
           <ScrollView
             style={{ flex: 1 }}
             refreshControl={
@@ -112,7 +139,7 @@ export default class GroupScreen extends Component {
               />
             }
           >
-            <View styleName="vertical">
+            <View styleName="vertical" style={{ marginTop: 12 }}>
               { this.renderGroups() }
             </View>
           </ScrollView>

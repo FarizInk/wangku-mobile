@@ -44,11 +44,11 @@ logout = async() => {
     return (
       <StyleProvider style={theme}>
         <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
-          <View styleName="vertical h-center">
+          <View styleName="vertical h-center" style={{ marginTop: 35 }}>
             <Lightbox>
               <Image
                 styleName="medium-avatar"
-                source={{ uri: 'https://shoutem.github.io/img/ui-toolkit/examples/image-3.png'}}
+                source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg'}}
               />
             </Lightbox>
             <View styleName="horizontal">

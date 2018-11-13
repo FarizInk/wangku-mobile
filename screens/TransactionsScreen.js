@@ -18,45 +18,44 @@ import {
   Icon,
   NavigationBar,
   Title,
-  Heading
+  Heading,
+  ImageBackground,
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
-import ActionButton from 'react-native-action-button';
 import axios from 'axios';
 
 let theme = _.merge(getTheme(), {
   'shoutem.ui.Row': {
       '.container': {
-        borderWidth: 2,
-        borderColor: "#EEEEEE",
-        borderRadius: 10,
+        borderRadius: 3,
         marginLeft: 20,
         marginRight: 20,
-        marginTop: 15,
+        marginTop: 8,
+        marginBottom: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.8,
+        shadowRadius: 5,
+        elevation: 2
       },
   },
-  'shoutem.ui.Text': {
-    '.plus': {
-      color: 'green'
+  'shoutem.ui.Button' : {
+    '.info': {
+      padding: 12,
+      borderRadius: 99,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.8,
+      shadowRadius: 5,
+      elevation: 2
     },
     '.minus': {
-      color: 'red'
+      backgroundColor: 'red',
     },
-  },
-  'shoutem.ui.Heading': {
-    '.header': {
-      marginTop: 35,
-      textAlign: 'center',
+    '.plus': {
+      backgroundColor: 'green',
     }
-  },
-  'shoutem.ui.Icon': {
-    '.plus': {
-      color: 'green'
-    },
-    '.minus': {
-      color: 'red'
-    },
   }
 });
 
@@ -85,8 +84,8 @@ export default class TransactionsScreen extends Component {
       .catch(error => console.warn(error.response.data));
   }
 
-  async componentWillMount() {
-    await this.getTransactions();
+  componentWillMount() {
+    this._onRefresh();
   }
 
   renderTransactions() {
@@ -105,9 +104,9 @@ export default class TransactionsScreen extends Component {
           <Row styleName="container">
             <View styleName="vertical space-between content">
               <Subtitle>{ transaction.description }</Subtitle>
-              <Caption>{ transaction.created }  ·  { transaction.time }</Caption>
+              <Caption>{ transaction.created }</Caption>
             </View>
-            <Button styleName="right-icon"><Icon name={transaction.status + "-button"} styleName={ transaction.status } /><Text styleName={ transaction.status }>{ transaction.amount }</Text></Button>
+            <Button styleName={"right-icon info " + transaction.status}><Icon name={transaction.status + "-button"} style={{ color: 'white' }}/></Button>
           </Row>
         </TouchableOpacity>
       );
@@ -124,8 +123,34 @@ export default class TransactionsScreen extends Component {
   render() {
     return (
       <StyleProvider style={theme}>
-        <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
-          <Heading styleName="header">Wangku - Today</Heading>
+        <ViewReact style={{ flex: 1, backgroundColor: '#E8EAF6' }}>
+          <ViewReact style={{ height: 23.7, backgroundColor: '#311B92' }}>
+          </ViewReact>
+          <ViewReact>
+            <ImageBackground
+              style={{ height: 70, backgroundColor: '#311B92', shadowColor: '#000', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.8, elevation: 5 }}
+            >
+            <NavigationBar
+              styleName="clear"
+              leftComponent={(
+                <Button>
+                  <Text style={{ marginLeft: 15, color: '#FFDE03' }}>All</Text>
+                </Button>
+              )}
+              centerComponent={<Title >Wangku - Today</Title>}
+              rightComponent={(
+                <Button
+                  style={{ marginRight: 15, backgroundColor: '#FFDE03', borderRadius: 5 }}
+                  onPress={() => this.props.navigation.navigate('AddTransaction',
+                    { getTransactions: this._onRefresh.bind(this) }
+                  )}
+                >
+                  <Icon name="plus-button" style={{ color: 'black' }} />
+                </Button>
+              )}
+            />
+            </ImageBackground>
+          </ViewReact>
           <ScrollView
           style={{ flex: 1 }}
           refreshControl={
@@ -135,17 +160,10 @@ export default class TransactionsScreen extends Component {
             />
           }
           >
-            <View styleName="vertical">
+            <View styleName="vertical" style={{ marginTop: 12, marginBottom: 12 }}>
               {this.renderTransactions()}
             </View>
           </ScrollView>
-          <ActionButton
-            buttonColor="rgba(231,76,60,1)"
-            verticalOrientation="up"
-            onPress={() => this.props.navigation.navigate('AddTransaction',
-              { getTransactions: this._onRefresh.bind(this) }
-            )}
-          />
         </ViewReact>
       </StyleProvider>
     );
