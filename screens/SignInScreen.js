@@ -53,7 +53,7 @@ export default class SignInScreen extends Component {
     title: 'Sign In',
   }
 
-  state = { email: '', password: '', name: '', usermail: '', meta: '', error: '' };
+  state = { email: '', password: '', name: '', usermail: '', meta: '', error: [] };
 
   async onButtonPress() {
     const { email, password } = this.state;
@@ -71,9 +71,11 @@ export default class SignInScreen extends Component {
           meta: response.data.meta.token,
           error: response.data.error
         }))
-        .catch(error => console.warn(error));
+        .catch(error => this.setState({
+          error: error.response.data
+        }));
       if (this.state.error != null) {
-        ToastAndroid.show(this.state.error, ToastAndroid.SHORT);
+        ToastAndroid.show(this.state.error['message'], ToastAndroid.SHORT);
       } else {
         ToastAndroid.show('Welcome ' + this.state.name, ToastAndroid.SHORT);
         this.login();

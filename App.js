@@ -25,6 +25,7 @@ import GroupScreen from './screens/GroupScreen';
 import AddTransaction from './screens/transactions/AddTransactionScreen';
 import DetailTransaction from './screens/transactions/DetailTransactionScreen';
 import EditTransaction from './screens/transactions/EditTransactionScreen';
+import UpdateProfileScreen from './screens/ProfileUpdateScreen';
 
 const AuthStackNavigator = createStackNavigator({
   Welcome: WelcomeScreen,
@@ -34,7 +35,7 @@ const AuthStackNavigator = createStackNavigator({
 
 });
 
-const AppTabNavigator = createMaterialBottomTabNavigator({
+const AppTabNavigator = createMaterialTopTabNavigator({
   Home: {
     screen: HomeScreen,
     navigationOptions: {
@@ -83,7 +84,7 @@ const AppTabNavigator = createMaterialBottomTabNavigator({
 }, {
   initialRouteName: 'Home',
   order: ['Today', 'Group', 'Home', 'Search', 'Profile'],
-  swipeEnabled: true,
+  swipeEnabled: false,
   shifting: false,
   animationEnabled: false,
   tabBarPosition: 'bottom',
@@ -94,13 +95,15 @@ const AppTabNavigator = createMaterialBottomTabNavigator({
     activeTintColor: '#311B92',
     inactiveTintColor: 'grey',
     style: {
-      backgroundColor: 'white'
+      backgroundColor: 'white',
+      marginBottom: -7
     },
     indicatorStyle: {
-      height: 0
+      height: 0,
+      backgroundColor: '#311B92'
     },
     showIcon: true,
-    showLabel: false,
+    showLabel: true,
   }
 });
 
@@ -115,6 +118,7 @@ const AppStackNavigator = createStackNavigator({
   AddTransaction: AddTransaction,
   DetailTransaction: DetailTransaction,
   EditTransaction: EditTransaction,
+  UpdateProfileScreen: UpdateProfileScreen,
 });
 
 // const AppDrawerNavigator = createDrawerNavigator({

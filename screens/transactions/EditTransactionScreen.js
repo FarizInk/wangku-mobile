@@ -74,8 +74,6 @@ export default class AddTransactionScreen extends Component {
     }
   }
 
-  state = {id: '', amount: '', description: '', token: '', success: '', error: [], oldStatus: '', isLoading: true};
-
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
     const { params } = this.props.navigation.state;
@@ -129,7 +127,6 @@ export default class AddTransactionScreen extends Component {
 
     if (selectedStatus !== undefined && amount !== undefined) {
       if (selectedStatus.value !== '') {
-        this.setState({ zstatus: selectedStatus.value })
         successInput = true;
       }
     }
@@ -156,7 +153,7 @@ export default class AddTransactionScreen extends Component {
         time: response.data.data.time,
         isLoading: false
       }))
-      .catch(error => console.warn(error.response.data));
+      .catch(error => console.log(error.response.data));
 
       (this.state.oldStatus == "plus") ? (this.setState({ selectedStatus: this.state.status[1] })) : (this.setState({ selectedStatus: this.state.status[2] }));
 

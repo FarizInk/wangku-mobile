@@ -88,7 +88,7 @@ export default class AddTransactionScreen extends Component {
         headers: {
           'Accept': "application/json",
           'Content-Type' : "application/json",
-          'Authorization' : "Bearer " + token,
+          'Authorization' : "Bearer " + this.state.token,
         }
     };
 

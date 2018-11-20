@@ -6,6 +6,7 @@ import {
   ScrollView,
   AsyncStorage,
   RefreshControl,
+  ActivityIndicator
 } from 'react-native';
 import {
   Button,
@@ -61,7 +62,7 @@ let theme = _.merge(getTheme(), {
 
 
 export default class TransactionsScreen extends Component {
-  state = { transactions: [], token: '', refreshing: false }
+  state = { transactions: [], token: '', refreshing: false, isLoading: true }
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
@@ -80,12 +81,13 @@ export default class TransactionsScreen extends Component {
     }
 
     axios.get('http://wangku.herokuapp.com/api/transactions/today/user', config)
-      .then(response => this.setState({ transactions: response.data.data }))
+      .then(response => this.setState({ transactions: response.data.data, isLoading: false }))
       .catch(error => console.warn(error.response.data));
   }
 
-  componentWillMount() {
-    this._onRefresh();
+  async componentWillMount() {
+    this.setState({ isLoading: true })
+    await this.getTransactions();
   }
 
   renderTransactions() {
@@ -95,20 +97,23 @@ export default class TransactionsScreen extends Component {
       );
     } else {
       return this.state.transactions.map(transaction =>
-        <TouchableOpacity
-          key={ transaction.id }
-          onPress={() => this.props.navigation.navigate('DetailTransaction',
-            { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
-          )}
-        >
-          <Row styleName="container">
+          <Row styleName="container" key={ transaction.id }>
             <View styleName="vertical space-between content">
-              <Subtitle>{ transaction.description }</Subtitle>
+              <TouchableOpacity
+                onPress={() => this.props.navigation.navigate('DetailTransaction',
+                  { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
+                )}
+              >
+                <Subtitle>{ transaction.description }</Subtitle>
+              </TouchableOpacity>
               <Caption>{ transaction.created }</Caption>
             </View>
-            <Button styleName={"right-icon info " + transaction.status}><Icon name={transaction.status + "-button"} style={{ color: 'white' }}/></Button>
+            <Button
+            onPress={() => this.props.navigation.navigate('DetailTransaction',
+              { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
+            )}
+            styleName={"right-icon info " + transaction.status}><Icon name={transaction.status + "-button"} style={{ color: 'white' }}/></Button>
           </Row>
-        </TouchableOpacity>
       );
     }
   }
@@ -124,7 +129,7 @@ export default class TransactionsScreen extends Component {
     return (
       <StyleProvider style={theme}>
         <ViewReact style={{ flex: 1, backgroundColor: '#E8EAF6' }}>
-          <ViewReact style={{ height: 23.7, backgroundColor: '#311B92' }}>
+          <ViewReact style={{ height: 23.7, backgroundColor: '#000' }}>
           </ViewReact>
           <ViewReact>
             <ImageBackground
@@ -151,21 +156,40 @@ export default class TransactionsScreen extends Component {
             />
             </ImageBackground>
           </ViewReact>
-          <ScrollView
-          style={{ flex: 1 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this._onRefresh}
-            />
-          }
-          >
-            <View styleName="vertical" style={{ marginTop: 12, marginBottom: 12 }}>
-              {this.renderTransactions()}
-            </View>
-          </ScrollView>
+          {this.state.isLoading ? (
+            <ViewReact style={styles.container}>
+              <ActivityIndicator
+                animating
+                size="large"
+                style={styles.activityIndicator}
+              />
+            </ViewReact>
+          ) : (
+            <ScrollView
+            style={{ flex: 1 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={this._onRefresh}
+              />
+            }
+            >
+              <View styleName="vertical" style={{ marginTop: 12, marginBottom: 12 }}>
+                {this.renderTransactions()}
+              </View>
+            </ScrollView>
+          )}
         </ViewReact>
       </StyleProvider>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#E8EAF6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

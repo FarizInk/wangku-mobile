@@ -22,7 +22,6 @@ let theme = _.merge(getTheme(), {
     '.container': {
       paddingTop: 0,
       paddingBottom: 0,
-      marginTop: 20,
       marginBottom: 20,
     },
     'shoutem.ui.Button': {
@@ -38,7 +37,9 @@ export default class SearchScreen extends Component {
   render() {
     return (
       <StyleProvider style={theme}>
-        <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
+        <ViewReact style={{ flex: 1, backgroundColor: '#E8EAF6' }}>
+          <ViewReact style={{ height: 23.7, backgroundColor: '#000' }}>
+          </ViewReact>
           <View styleName="vertical">
             <Row styleName="container">
               <View styleName="vertical space-between">

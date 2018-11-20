@@ -2,7 +2,7 @@
   "expo": {
     "name": "Wangku",
     "description": "Test Version.",
-    "slug": "Wangku",
+    "slug": "farizink-wangku",
     "privacy": "public",
     "sdkVersion": "30.0.0",
     "platforms": ["ios", "android"],
@@ -21,7 +21,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.farizink.wangku"
     },
+    "android": {
+      "package": "com.farizink.wangku"
+    }
   }
 }

@@ -103,7 +103,7 @@ export default class GroupScreen extends Component {
     return (
       <StyleProvider style={theme}>
         <ViewReact style={{ flex: 1, backgroundColor: '#E8EAF6' }}>
-          <ViewReact style={{ height: 23.7, backgroundColor: '#311B92' }}>
+          <ViewReact style={{ height: 23.7, backgroundColor: '#000' }}>
           </ViewReact>
           <ViewReact>
             <ImageBackground
