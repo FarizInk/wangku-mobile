@@ -54,9 +54,10 @@ export default class HomeScreen extends Component {
       .then(response => this.setState({
         name: response.data.data.name,
         balance: response.data.data.balance,
+        photo: response.data.meta.photo,
         isLoading: false
       }))
-      .catch(error => console.warn(error.response.data));
+      .catch(error => console.log(error.response.data));
   }
 
   async componentWillMount() {
@@ -65,13 +66,19 @@ export default class HomeScreen extends Component {
   }
 
   renderHomeScreen() {
+    let photo = this.state.photo;
+    if (this.state.photo == undefined || this.state.photo == null) {
+      photo = 'http://wangku.herokuapp.com/img/avatar/default.jpg';
+    } else {
+      photo = 'http://wangku.herokuapp.com/images/profile/' + this.state.photo;
+    }
     return (
       <ScrollView style={{ flex: 1 }}>
         <View styleName="vertical h-center">
           <Row styleName="container" style={{ backgroundColor: 'transparent' }}>
             <Image
               style={{ borderWidth: 2, borderColor: 'white', width: 50, height: 50, borderRadius: 99, marginLeft: 20 }}
-              source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg'}}
+              source={{ uri: photo }}
             />
             <View styleName="vertical space-between content" style={{  }}>
               <Subtitle>{ this.state.name }</Subtitle>

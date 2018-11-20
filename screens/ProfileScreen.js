@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  ToastAndroid
 } from 'react-native';
 import {
   Button,
@@ -22,6 +23,7 @@ import {
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
 import axios from 'axios';
+import { ImagePicker } from 'expo';
 
 let theme = _.merge(getTheme(), {
   'shoutem.ui.Row': {
@@ -75,10 +77,50 @@ async getProfile() {
       balance: response.data.data.balance,
       gender: response.data.meta.gender,
       region: response.data.meta.region,
+      photo: response.data.meta.photo,
       verified: response.data.data.verified,
       isLoading: false
     }))
     .catch(error => console.log(error.response.data));
+  }
+
+  _pickImage = async () => {
+    this.setState({ isLoading: true });
+    var config = {
+      headers: {
+        'Accept': "application/json",
+        'Content-Type': "multipart/form-data",
+        'Authorization': "Bearer " + this.state.token
+      }
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 4],
+    });
+
+    console.log(result);
+    const form = new FormData();
+    form.append('photo', {
+      uri: result.uri,
+      type: 'image/jpeg',
+      name: 'image.jpg',
+    });
+
+    await axios.post('http://wangku.herokuapp.com/api/profile/update/photo', form, config)
+      .then(response => ToastAndroid.show(response.data.message, ToastAndroid.SHORT))
+      .catch(error => this.setState({
+        error: error.response.data
+      }));
+
+    if (this.state.error !== undefined) {
+      (this.state.error['photo'] != null) ? ToastAndroid.show(this.state.error['status'][0], ToastAndroid.SHORT) : '';
+    }
+    this.setState({ error: '' });
+
+    if (!result.cancelled) {
+      this.componentWillMount();
+    }
   }
 
   async componentWillMount() {
@@ -87,17 +129,24 @@ async getProfile() {
   }
 
   renderProfile() {
+    let photo = this.state.photo;
+    if (this.state.photo == undefined || this.state.photo == null) {
+      photo = 'http://wangku.herokuapp.com/img/avatar/default.jpg';
+    } else {
+      photo = 'http://wangku.herokuapp.com/images/profile/' + this.state.photo;
+    }
     return (
       <ScrollView style={{ flex: 1 }}>
         <View styleName="vertical h-center">
           <Row styleName="container" style={{ backgroundColor: 'transparent' }}>
             <Image
               style={{ borderWidth: 10, borderColor: 'white', width: 150, height: 150, borderRadius: 99, marginLeft: 20 }}
-              source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg'}}
+              source={{ uri: photo }}
             />
-            <View styleName="vertical space-between content" style={{ marginLeft: 10, padding: 16, backgroundColor: 'white', borderRadius: 4, marginRight: 20 }}>
-              <Caption>Your Balance:</Caption>
-              <Subtitle>Rp { this.state.balance }</Subtitle>
+            <View styleName="horizontal" style={{ marginLeft: 10 }}>
+              <Button onPress={ this._pickImage }>
+                <Text style={{ color: '#311B92' }}>Change Photo</Text>
+              </Button>
             </View>
           </Row>
 
@@ -147,7 +196,7 @@ async getProfile() {
             <Icon name="web" styleName="profile-icon" />
             <View styleName="vertical space-between content">
               <Caption>Region</Caption>
-              <Subtitle>{ this.state.region }</Subtitle>
+              <Subtitle>{ (this.state.region == 'west') ? 'West Indonesia' : ((this.state.gender == 'middle') ? 'Middle Indonesia' : 'East Indonesia') }</Subtitle>
             </View>
           </Row>
 
