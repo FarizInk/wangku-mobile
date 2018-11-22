@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  View,
+  View as ViewReact,
   StyleSheet,
   AsyncStorage,
   TouchableWithoutFeedback,
@@ -9,10 +9,11 @@ import {
 import {
   Button,
   Text,
-  View as ShoutemView,
+  View,
   getTheme,
   TextInput,
-  Heading
+  Heading,
+  Subtitle
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -38,11 +39,17 @@ let theme = _.merge(getTheme(), {
         backgroundColor: '#fff',
         color: 'black',
         width: 300,
-        marginTop: 20,
         borderColor: '#EEEEEE',
         borderWidth: 2,
         borderRadius: 3,
       },
+  },
+  'shoutem.ui.Subtitle': {
+    '.label': {
+      marginTop: 20,
+      width: 300,
+      marginBottom: 10,
+    }
   },
 });
 
@@ -53,7 +60,7 @@ export default class SignInScreen extends Component {
     title: 'Sign In',
   }
 
-  state = { email: '', password: '', name: '', usermail: '', meta: '', error: [] };
+  state = { email: '', password: '', name: '', meta: '', error: [] };
 
   async onButtonPress() {
     const { email, password } = this.state;
@@ -67,7 +74,6 @@ export default class SignInScreen extends Component {
       await axios.post('http://wangku.herokuapp.com/api/login', data)
         .then(response => this.setState({
           name: response.data.data.name,
-          usermail: response.data.data.email,
           meta: response.data.meta.token,
           error: response.data.error
         }))
@@ -96,8 +102,6 @@ export default class SignInScreen extends Component {
   }
 
   async login() {
-    await AsyncStorage.setItem('name', this.state.name)
-    await AsyncStorage.setItem('email', this.state.usermail)
     await AsyncStorage.setItem('apiToken', this.state.meta)
 
     this.props.navigation.navigate('AuthLoading')
@@ -107,17 +111,19 @@ export default class SignInScreen extends Component {
     return (
       <StyleProvider style={theme}>
           <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
-            <ShoutemView styleName="vertical h-center content" >
+            <View styleName="vertical h-center content" >
+              <Subtitle styleName="label">Email</Subtitle>
               <TextInput
-                placeholder={'Email'}
+                placeholder={'Your email here...'}
                 styleName="textInput"
                 keyboardType="email-address"
                 autoFocus={true}
                 value={this.state.email}
                 onChangeText={email => this.setState({ email })}
               />
+              <Subtitle styleName="label">Password</Subtitle>
               <TextInput
-                placeholder={'Password'}
+                placeholder={'Your password here...'}
                 secureTextEntry
                 styleName="textInput"
                 value={this.state.password}
@@ -126,7 +132,7 @@ export default class SignInScreen extends Component {
               <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
                 <Text>LOGIN</Text>
               </Button>
-            </ShoutemView>
+            </View>
           </TouchableWithoutFeedback>
       </StyleProvider>
     );

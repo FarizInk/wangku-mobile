@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  View,
+  View as ViewReact,
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
@@ -10,10 +10,11 @@ import {
 import {
   Button,
   Text,
-  View as ShoutemView,
+  View,
   getTheme,
   TextInput,
   DropDownMenu,
+  Subtitle
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -25,6 +26,11 @@ let theme = _.merge(getTheme(), {
         backgroundColor: 'white',
         flex: 1,
       },
+      '.selectDropdown': {
+        width: 300,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }
   },
   'shoutem.ui.Button': {
       '.register': {
@@ -37,11 +43,17 @@ let theme = _.merge(getTheme(), {
         backgroundColor: '#fff',
         color: 'black',
         width: 300,
-        marginTop: 20,
         borderColor: '#EEEEEE',
         borderWidth: 2,
         borderRadius: 3,
       },
+  },
+  'shoutem.ui.Subtitle': {
+    '.label': {
+      marginTop: 20,
+      width: 300,
+      marginBottom: 10,
+    }
   },
 });
 
@@ -148,24 +160,29 @@ export default class AddTransactionScreen extends Component {
     return (
       <StyleProvider style={theme}>
           <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
-            <ShoutemView styleName="vertical h-center content" >
-              <DropDownMenu
-                styleName="horizontal"
-                options={this.state.status}
-                selectedOption={selectedStatus ? selectedStatus : this.state.status[0]}
-                onOptionSelected={(status) => this.setState({ selectedStatus: status })}
-                titleProperty="name"
-                valueProperty="status.value"
-              />
+            <View styleName="vertical h-center content" >
+              <Subtitle styleName="label">Status</Subtitle>
+              <View styleName="selectDropdown">
+                <DropDownMenu
+                  styleName="horizontal"
+                  options={this.state.status}
+                  selectedOption={selectedStatus ? selectedStatus : this.state.status[0]}
+                  onOptionSelected={(status) => this.setState({ selectedStatus: status })}
+                  titleProperty="name"
+                  valueProperty="status.value"
+                />
+              </View>
+              <Subtitle styleName="label">Amount</Subtitle>
               <TextInput
-                placeholder={'Amount'}
+                placeholder={'Transaction amount here...'}
                 styleName="textInput"
                 keyboardType="numeric"
                 value={this.state.amount}
                 onChangeText={ amount => this.setState({ amount }) }
               />
+              <Subtitle styleName="label">Description</Subtitle>
               <TextInput
-                placeholder={'Description'}
+                placeholder={'Transaction description here...'}
                 styleName="textInput"
                 value={this.state.description}
                 onChangeText={ description => this.setState({ description }) }
@@ -173,7 +190,7 @@ export default class AddTransactionScreen extends Component {
               <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
                 <Text>Create</Text>
               </Button>
-            </ShoutemView>
+            </View>
           </TouchableWithoutFeedback>
       </StyleProvider>
     );

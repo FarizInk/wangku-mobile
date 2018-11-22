@@ -131,8 +131,10 @@ export default class AddTransactionScreen extends Component {
         gender: selectedGender.value,
         region: selectedRegion.value
       }, config)
-        .then(response => console.warn(response.data))
-        .catch(error => console.warn(error.response.data));
+        .then(response => console.log(response.data))
+        .catch(error => this.setState({
+          error: error.response.data.errors
+        }));
 
       if (this.state.error !== undefined) {
         (this.state.error['name'] != null) ? ToastAndroid.show(this.state.error['name'][0], ToastAndroid.SHORT) : '';
@@ -154,10 +156,14 @@ export default class AddTransactionScreen extends Component {
     }
   }
 
+  async changePassword() {
+    console.warn("password change!");
+  }
+
   checkInput(name, balance, selectedGender, selectedRegion) {
     let successInput = false;
 
-    if (name !== undefined && balance !== undefined) {
+    if (name !== undefined && balance !== undefined && name !== '' && balance !== '') {
       if (selectedGender.value !== '' && selectedRegion.value !== '') {
         successInput = true;
       }
@@ -188,6 +194,34 @@ export default class AddTransactionScreen extends Component {
       (this.state.gender == null) ? (this.setState({ selectedGender: this.state.optionGender[0] })) : ( (this.state.gender == 'male') ? (this.setState({ selectedGender: this.state.optionGender[1] })) : (this.setState({ selectedGender: this.state.optionGender[2] })) );
 
       (this.state.region == "west") ? (this.setState({ selectedRegion: this.state.optionRegion[0] })) : ( (this.state.region == "middle") ? (this.setState({ selectedRegion: this.state.optionRegion[1] })) : (this.setState({ selectedRegion: this.state.optionRegion[2] })) );
+  }
+
+  async changeEmail() {
+    var config = {
+        headers: {
+          'Accept': "application/json",
+          'Content-Type' : "application/json",
+          'Authorization' : "Bearer " + this.state.token,
+        }
+    };
+    await axios.post('http://wangku.herokuapp.com/api/profile/update/email', {
+      email: this.state.email
+    }, config)
+      .then(response => console.log(response.data))
+      .catch(error => this.setState({
+        error: error.response.data.errors
+      }));
+    if (this.state.error !== undefined) {
+      (this.state.error['email'] != null) ? ToastAndroid.show(this.state.error['email'][0], ToastAndroid.SHORT) : '';
+    } else if (this.state.success != null || this.state.success != '' || this.state.success != undefined) {
+      ToastAndroid.show('Successfully Update Email', ToastAndroid.SHORT);
+      this.props.navigation.goBack();
+    }
+
+    this.setState({
+      success: '',
+      error: []
+    });
   }
 
   async componentWillMount() {
@@ -247,9 +281,32 @@ export default class AddTransactionScreen extends Component {
             <Button styleName="secondary register" onPress={this.changeProfile.bind(this)}>
               <Text>Change</Text>
             </Button>
+            <Divider styleName="line custom"/>
+            <Subtitle styleName="label">Change Email</Subtitle>
+            <TextInput
+              placeholder={'Your New Email'}
+              styleName="textInput"
+              keyboardType="email-address"
+              value={this.state.email}
+              onChangeText={ email => this.setState({ email }) }
+            />
+            <Button styleName="secondary register" onPress={this.changeEmail.bind(this)}>
+              <Text>Change</Text>
+            </Button>
+            <Divider styleName="line custom"/>
+            <Subtitle styleName="label">Change Password</Subtitle>
+            <TextInput
+              placeholder={'Your New Password'}
+              styleName="textInput"
+              secureTextEntry
+              value={this.state.password}
+              onChangeText={ email => this.setState({ password }) }
+            />
+            <Button styleName="secondary register" onPress={this.changePassword.bind(this)} style={{ marginBottom: 30 }}>
+              <Text>Change</Text>
+            </Button>
           </View>
         </TouchableWithoutFeedback>
-        <Divider styleName="line custom"/>
       </ScrollView>
     );
   }

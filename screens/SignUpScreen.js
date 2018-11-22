@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  View,
+  View as ViewReact,
   StyleSheet,
   Keyboard,
   TouchableWithoutFeedback,
@@ -9,9 +9,10 @@ import {
 import {
   Button,
   Text,
-  View as ShoutemView,
+  View,
   getTheme,
   TextInput,
+  Subtitle
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -35,11 +36,17 @@ let theme = _.merge(getTheme(), {
         backgroundColor: '#fff',
         color: 'black',
         width: 300,
-        marginTop: 20,
         borderColor: '#EEEEEE',
         borderWidth: 2,
         borderRadius: 3,
       },
+  },
+  'shoutem.ui.Subtitle': {
+    '.label': {
+      marginTop: 20,
+      width: 300,
+      marginBottom: 10,
+    }
   },
 });
 
@@ -111,23 +118,26 @@ export default class SignUpScreen extends Component {
     return (
       <StyleProvider style={theme}>
           <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
-            <ShoutemView styleName="vertical h-center content" >
+            <View styleName="vertical h-center content">
+              <Subtitle styleName="label">Name</Subtitle>
               <TextInput
-                placeholder={'Name'}
+                placeholder={'Enter name here...'}
                 styleName="textInput"
                 autoFocus={true}
                 value={this.state.name}
                 onChangeText={ name => this.setState({ name }) }
               />
+              <Subtitle styleName="label">Email</Subtitle>
               <TextInput
-                placeholder={'Email'}
+                placeholder={'Enter email here...'}
                 styleName="textInput"
                 keyboardType="email-address"
                 value={this.state.email}
                 onChangeText={ email => this.setState({ email }) }
               />
+              <Subtitle styleName="label">Password</Subtitle>
               <TextInput
-                placeholder={'Password'}
+                placeholder={'Enter password here...'}
                 secureTextEntry
                 styleName="textInput"
                 value={this.state.password}
@@ -136,7 +146,7 @@ export default class SignUpScreen extends Component {
               <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
                 <Text>REGISTER</Text>
               </Button>
-            </ShoutemView>
+            </View>
           </TouchableWithoutFeedback>
       </StyleProvider>
     );
