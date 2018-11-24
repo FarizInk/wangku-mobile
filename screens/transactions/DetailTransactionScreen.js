@@ -13,9 +13,11 @@ import {
   Text,
   View,
   getTheme,
-  TextInput,
-  DropDownMenu,
   Icon,
+  Title,
+  Tile,
+  Subtitle,
+  ImageBackground,
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -27,6 +29,19 @@ let theme = _.merge(getTheme(), {
         backgroundColor: 'white',
         flex: 1,
       },
+  },
+  'shoutem.ui.View': {
+    '.card': {
+      borderRadius: 5,
+      margin: 12,
+      height: 200
+    },
+    '.plus': {
+      backgroundColor: "green"
+    },
+    '.minus': {
+      backgroundColor: "red"
+    }
   }
 });
 
@@ -97,15 +112,17 @@ export default class AddTransactionScreen extends Component {
   renderTransaction() {
     return (
       <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
-        <View styleName="vertical h-start" style={{ marginLeft: 12, marginTop: 12 }}>
-          <Text>Status: { this.state.status }</Text>
-          <Text>Amount: { this.formatRupiah(this.state.amount.toString()) }</Text>
-          <Text>Description: { this.state.description }</Text>
-          <Text>Date: { this.state.date }</Text>
-          <Text>Time: { this.state.time }</Text>
+          <View styleName={ (this.state.status == "plus") ? "vertical h-center v-center card plus" : "vertical h-center v-center card minus" }>
+            <Text style={{ color: 'white', fontSize: 25 }}>{ (this.state.status == "plus") ? ("+ Rp " + this.formatRupiah(this.state.amount.toString())) : ("- Rp " + this.formatRupiah(this.state.amount.toString())) }</Text>
+            <Text style={{ color: '#eee', fontSize: 16, marginTop: 12 }}>{ this.state.description }</Text>
+          </View>
+          <View styleName="horizontal h-center" style={{ marginBottom: 15 }}>
+            <Text>{ this.state.date + " · " + this.state.time }</Text>
+          </View>
           <View styleName="horizontal h-center">
             <Button
               styleName="secondary"
+              style={{ backgroundColor: '#311B92', borderWidth: 0 }}
               onPress={() => this.props.navigation.navigate('EditTransaction',
                 { id: this.state.id, getTransactions: this.componentWillMount.bind(this) }
               )}
@@ -114,13 +131,14 @@ export default class AddTransactionScreen extends Component {
               <Text>EDIT</Text>
             </Button>
             <Button
+              styleName="secondary"
+              style={{ backgroundColor: '#D32F2F', borderWidth: 0, marginLeft: 12 }}
               onPress={() => this.deleteTransaction()}
             >
               <Icon name="close" />
               <Text>DELETE</Text>
             </Button>
           </View>
-        </View>
       </ViewReact>
     );
   }
