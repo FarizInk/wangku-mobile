@@ -90,6 +90,23 @@ export default class TransactionsScreen extends Component {
     await this.getTransactions();
   }
 
+  formatRupiah(angka, prefix){
+  	var number_string = angka.toString(),
+  	split   		= number_string.split(','),
+  	sisa     		= split[0].length % 3,
+  	rupiah     		= split[0].substr(0, sisa),
+  	ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+  	// tambahkan titik jika yang di input sudah menjadi angka ribuan
+  	if(ribuan){
+  		separator = sisa ? '.' : '';
+  		rupiah += separator + ribuan.join('.');
+  	}
+
+  	rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+  	return prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
+  }
+
   renderTransactions() {
     if (this.state.transactions == "") {
       return (
@@ -108,11 +125,13 @@ export default class TransactionsScreen extends Component {
               </TouchableOpacity>
               <Caption>{ transaction.created }</Caption>
             </View>
-            <Button
-            onPress={() => this.props.navigation.navigate('DetailTransaction',
-              { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
-            )}
-            styleName={"right-icon info " + transaction.status}><Icon name={transaction.status + "-button"} style={{ color: 'white' }}/></Button>
+            <View styleName="vertical space-between">
+              { (transaction.status == "plus") ? (
+                <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(transaction.amount) }</Caption>
+              ) : (
+                <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(transaction.amount) }</Caption>
+              ) }
+            </View>
           </Row>
       );
     }

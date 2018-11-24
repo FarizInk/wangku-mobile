@@ -127,7 +127,7 @@ export default class AddTransactionScreen extends Component {
 
       await axios.put('http://wangku.herokuapp.com/api/profile/update', {
         name: name,
-        balance: balance,
+        balance: balance.replace(/[^,\d]/g, "").toString(),
         gender: selectedGender.value,
         region: selectedRegion.value
       }, config)
@@ -190,6 +190,7 @@ export default class AddTransactionScreen extends Component {
         isLoading: false
       }))
       .catch(error => console.log(error.data));
+      this.formatRupiah(this.state.balance.toString());
 
       (this.state.gender == null) ? (this.setState({ selectedGender: this.state.optionGender[0] })) : ( (this.state.gender == 'male') ? (this.setState({ selectedGender: this.state.optionGender[1] })) : (this.setState({ selectedGender: this.state.optionGender[2] })) );
 
@@ -234,6 +235,24 @@ export default class AddTransactionScreen extends Component {
     params.refresh();
   }
 
+  formatRupiah(angka, prefix){
+  	var number_string = angka.replace(/[^,\d]/g, "").toString(),
+  	split   		= number_string.split(','),
+  	sisa     		= split[0].length % 3,
+  	rupiah     		= split[0].substr(0, sisa),
+  	ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+  	// tambahkan titik jika yang di input sudah menjadi angka ribuan
+  	if(ribuan){
+  		separator = sisa ? '.' : '';
+  		rupiah += separator + ribuan.join('.');
+  	}
+
+  	rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+  	hasil = prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
+    this.setState({ balance: hasil })
+  }
+
   renderUpdateProfile() {
     const selectedGender = this.state.selectedGender || this.state.optionGender[0];
     const selectedRegion = this.state.selectedRegion || this.state.optionRegion[0];
@@ -254,7 +273,7 @@ export default class AddTransactionScreen extends Component {
               styleName="textInput"
               keyboardType="numeric"
               value={`${this.state.balance}`}
-              onChangeText={ balance => this.setState({ balance }) }
+              onChangeText={ balance => this.formatRupiah(balance) }
             />
             <Subtitle styleName="label">Gender</Subtitle>
             <View styleName="selectDropdown">

@@ -35,7 +35,7 @@ export default class AddTransactionScreen extends Component {
     title: 'Detail Transaction',
   }
 
-  state = { id: '', token: '', status: '', amount: '', description: '', date: '', time: '', isLoading: true }
+  state = { isLoading: true }
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
@@ -77,12 +77,29 @@ export default class AddTransactionScreen extends Component {
     params.getTransactions();
   }
 
+  formatRupiah(angka, prefix){
+  	var number_string = angka.replace(/[^,\d]/g, "").toString(),
+  	split   		= number_string.split(','),
+  	sisa     		= split[0].length % 3,
+  	rupiah     		= split[0].substr(0, sisa),
+  	ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+  	// tambahkan titik jika yang di input sudah menjadi angka ribuan
+  	if(ribuan){
+  		separator = sisa ? '.' : '';
+  		rupiah += separator + ribuan.join('.');
+  	}
+
+  	rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+  	return prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
+  }
+
   renderTransaction() {
     return (
       <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
         <View styleName="vertical h-start" style={{ marginLeft: 12, marginTop: 12 }}>
           <Text>Status: { this.state.status }</Text>
-          <Text>Amount: { this.state.amount }</Text>
+          <Text>Amount: { this.formatRupiah(this.state.amount.toString()) }</Text>
           <Text>Description: { this.state.description }</Text>
           <Text>Date: { this.state.date }</Text>
           <Text>Time: { this.state.time }</Text>

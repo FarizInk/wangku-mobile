@@ -107,7 +107,7 @@ export default class AddTransactionScreen extends Component {
     if (this.checkInput(selectedStatus, amount)) {
       await axios.put('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, {
         status: selectedStatus.value,
-        amount: amount,
+        amount: amount.replace(/[^,\d]/g, ""),
         description: description
       }, config)
         .then(response => this.setState({
@@ -167,6 +167,7 @@ export default class AddTransactionScreen extends Component {
         isLoading: false
       }))
       .catch(error => console.log(error.response.data));
+      this.formatRupiah(this.state.amount.toString());
 
       (this.state.oldStatus == "plus") ? (this.setState({ selectedStatus: this.state.status[1] })) : (this.setState({ selectedStatus: this.state.status[2] }));
 
@@ -181,6 +182,24 @@ export default class AddTransactionScreen extends Component {
   async componentWillMount() {
     this.setState({isLoading: true});
     await this.getTransactions();
+  }
+
+  formatRupiah(angka, prefix){
+  	var number_string = angka.replace(/[^,\d]/g, "").toString(),
+  	split   		= number_string.split(','),
+  	sisa     		= split[0].length % 3,
+  	rupiah     		= split[0].substr(0, sisa),
+  	ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+  	// tambahkan titik jika yang di input sudah menjadi angka ribuan
+  	if(ribuan){
+  		separator = sisa ? '.' : '';
+  		rupiah += separator + ribuan.join('.');
+  	}
+
+  	rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+  	hasil = prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
+    this.setState({ amount: hasil })
   }
 
   renderTransaction() {
@@ -205,7 +224,7 @@ export default class AddTransactionScreen extends Component {
             styleName="textInput"
             keyboardType="numeric"
             value={`${this.state.amount}`}
-            onChangeText={ amount => this.setState({ amount }) }
+            onChangeText={ amount => this.formatRupiah(amount) }
           />
           <Subtitle styleName="label">Desciption</Subtitle>
           <TextInput

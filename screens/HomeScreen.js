@@ -5,7 +5,8 @@ import {
   AsyncStorage,
   Alert,
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
+  RefreshControl
 } from 'react-native';
 import {
   Button,
@@ -34,13 +35,15 @@ export default class HomeScreen extends Component {
     this.loadApp()
   }
 
+  state = { refreshing: false, isLoading: true }
+
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
 
     this.setState({token: apiToken})
   }
 
-  async getProfile() {
+  async getHome() {
     await this.loadApp()
     var config = {
       headers: {
@@ -58,11 +61,37 @@ export default class HomeScreen extends Component {
         isLoading: false
       }))
       .catch(error => console.log(error.response.data));
+    let balance = this.formatRupiah(this.state.balance);
+    this.setState({ balance: balance });
   }
 
   async componentWillMount() {
     this.setState({ isLoading: true })
-    await this.getProfile();
+    await this.getHome();
+  }
+
+  _onRefresh = () => {
+    this.setState({refreshing: true});
+    this.getHome().then(() => {
+      this.setState({refreshing: false});
+    });
+  }
+
+  formatRupiah(angka, prefix){
+  	var number_string = angka.toString(),
+  	split   		= number_string.split(','),
+  	sisa     		= split[0].length % 3,
+  	rupiah     		= split[0].substr(0, sisa),
+  	ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+  	// tambahkan titik jika yang di input sudah menjadi angka ribuan
+  	if(ribuan){
+  		separator = sisa ? '.' : '';
+  		rupiah += separator + ribuan.join('.');
+  	}
+
+  	rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+  	return prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
   }
 
   renderHomeScreen() {
@@ -73,7 +102,14 @@ export default class HomeScreen extends Component {
       photo = 'http://wangku.herokuapp.com/images/profile/' + this.state.photo;
     }
     return (
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView
+      style={{ flex: 1 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={this.state.refreshing}
+          onRefresh={this._onRefresh}
+        />
+      }>
         <View styleName="vertical h-center">
           <Row styleName="container" style={{ backgroundColor: 'transparent' }}>
             <Image

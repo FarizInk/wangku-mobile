@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
-  ToastAndroid
+  ToastAndroid,
+  RefreshControl
 } from 'react-native';
 import {
   Button,
@@ -54,6 +55,8 @@ logout = async() => {
   this.props.navigation.navigate('AuthLoading')
 }
 
+state = { refreshing: false, isLoading: true }
+
 async loadApp() {
   const apiToken = await AsyncStorage.getItem('apiToken')
 
@@ -85,7 +88,7 @@ async getProfile() {
   }
 
   _pickImage = async () => {
-    this.setState({ isLoading: true });
+    this.setState({ refreshing: true });
     var config = {
       headers: {
         'Accept': "application/json",
@@ -100,32 +103,39 @@ async getProfile() {
     });
 
     console.log(result);
-    const form = new FormData();
-    form.append('photo', {
-      uri: result.uri,
-      type: 'image/jpeg',
-      name: 'image.jpg',
-    });
-
-    await axios.post('http://wangku.herokuapp.com/api/profile/update/photo', form, config)
-      .then(response => ToastAndroid.show(response.data.message, ToastAndroid.SHORT))
-      .catch(error => this.setState({
-        error: error.response.data
-      }));
-
-    if (this.state.error !== undefined) {
-      (this.state.error['photo'] != null) ? ToastAndroid.show(this.state.error['status'][0], ToastAndroid.SHORT) : '';
-    }
-    this.setState({ error: '' });
 
     if (!result.cancelled) {
-      this.componentWillMount();
+      const form = new FormData();
+      form.append('photo', {
+        uri: result.uri,
+        type: 'image/jpeg',
+        name: 'image.jpg',
+      });
+
+      await axios.post('http://wangku.herokuapp.com/api/profile/update/photo', form, config)
+        .then(response => ToastAndroid.show(response.data.message, ToastAndroid.SHORT))
+        .catch(error => this.setState({
+          error: error.response.data
+        }));
+
+      if (this.state.error !== undefined) {
+        (this.state.error['photo'] != null) ? ToastAndroid.show(this.state.error['status'][0], ToastAndroid.SHORT) : '';
+      }
+      this.setState({ error: '' });
+      this._onRefresh();
     }
   }
 
   async componentWillMount() {
     this.setState({ isLoading: true })
     await this.getProfile();
+  }
+
+  _onRefresh = () => {
+    this.setState({refreshing: true});
+    this.getProfile().then(() => {
+      this.setState({refreshing: false});
+    });
   }
 
   renderProfile() {
@@ -136,7 +146,14 @@ async getProfile() {
       photo = 'http://wangku.herokuapp.com/images/profile/' + this.state.photo;
     }
     return (
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView
+      style={{ flex: 1 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={this.state.refreshing}
+          onRefresh={this._onRefresh}
+        />
+      }>
         <View styleName="vertical h-center">
           <Row styleName="container" style={{ backgroundColor: 'transparent' }}>
             <Image
@@ -203,7 +220,7 @@ async getProfile() {
           <View styleName="horizontal" style={{ marginBottom: 20 }}>
             <Button styleName="confirmation"
             onPress={() => this.props.navigation.navigate('UpdateProfileScreen',
-              { refresh: this.componentWillMount.bind(this) }
+              { refresh: this._onRefresh.bind(this) }
             )}>
               <Icon style={{ color: '#311B92' }} name="settings" />
               <Text style={{ color: '#311B92' }}>Update</Text>
