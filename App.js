@@ -26,6 +26,9 @@ import AddTransaction from './screens/transactions/AddTransactionScreen';
 import DetailTransaction from './screens/transactions/DetailTransactionScreen';
 import EditTransaction from './screens/transactions/EditTransactionScreen';
 import UpdateProfileScreen from './screens/ProfileUpdateScreen';
+import AllTransactionsScreen from './screens/transactions/AllTransactionsScreen';
+import AddGroupScreen from './screens/groups/AddGroupScreen';
+import IndexGroupScreen from './screens/groups/IndexGroupScreen';
 
 const AuthStackNavigator = createStackNavigator({
   Welcome: WelcomeScreen,
@@ -119,6 +122,9 @@ const AppStackNavigator = createStackNavigator({
   DetailTransaction: DetailTransaction,
   EditTransaction: EditTransaction,
   UpdateProfileScreen: UpdateProfileScreen,
+  AllTransactionsScreen: AllTransactionsScreen,
+  AddGroupScreen: AddGroupScreen,
+  IndexGroupScreen: IndexGroupScreen,
 });
 
 // const AppDrawerNavigator = createDrawerNavigator({

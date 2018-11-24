@@ -60,7 +60,7 @@ export default class SignInScreen extends Component {
     title: 'Sign In',
   }
 
-  state = { email: '', password: '', name: '', meta: '', error: [] };
+  state = { id: '', email: '', password: '', name: '', meta: '', error: [] };
 
   async onButtonPress() {
     const { email, password } = this.state;
@@ -73,6 +73,7 @@ export default class SignInScreen extends Component {
     if (this.checkInput(email, password)) {
       await axios.post('http://wangku.herokuapp.com/api/login', data)
         .then(response => this.setState({
+          id: response.data.data.id,
           name: response.data.data.name,
           meta: response.data.meta.token,
           error: response.data.error
@@ -103,6 +104,7 @@ export default class SignInScreen extends Component {
 
   async login() {
     await AsyncStorage.setItem('apiToken', this.state.meta)
+    await AsyncStorage.setItem('id', this.state.id.toString())
 
     this.props.navigation.navigate('AuthLoading')
   }

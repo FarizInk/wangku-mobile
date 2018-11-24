@@ -77,7 +77,7 @@ export default class AddTransactionScreen extends Component {
         time: response.data.data.time,
         isLoading: false
       }))
-      .catch(error => console.warn(error.response.data));
+      .catch(error => console.log(error.response.data));
   }
 
   async componentWillMount() {

@@ -5,6 +5,7 @@ import {
   ScrollView,
   RefreshControl,
   AsyncStorage,
+  TouchableOpacity
 } from 'react-native';
 import {
   Button,
@@ -18,7 +19,8 @@ import {
   NavigationBar,
   Title,
   Heading,
-  ImageBackground
+  ImageBackground,
+  Image
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -27,12 +29,17 @@ import axios from 'axios';
 let theme = _.merge(getTheme(), {
   'shoutem.ui.Row': {
     '.container': {
-      marginTop: 7,
-      backgroundColor: '#EEEEEE',
-      marginLeft: 10,
-      marginRight: 10,
-      borderRadius: 4,
-    }
+      borderRadius: 3,
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 8,
+      marginBottom: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.8,
+      shadowRadius: 5,
+      elevation: 2
+    },
   },
   'shoutem.ui.Heading': {
     '.header': {
@@ -48,8 +55,10 @@ export default class GroupScreen extends Component {
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
+    const id = await AsyncStorage.getItem('id')
 
     this.setState({token: apiToken})
+    this.setState({userid: id})
   }
 
   async getGroups() {
@@ -64,7 +73,7 @@ export default class GroupScreen extends Component {
 
     axios.get('http://wangku.herokuapp.com/api/groups', config)
       .then(response => this.setState({ groups: response.data.data }))
-      .catch(error => console.warn(error.response.data));
+      .catch(error => console.log(error.response.data));
   }
 
   async componentWillMount() {
@@ -85,16 +94,20 @@ export default class GroupScreen extends Component {
       );
     } else {
       return this.state.groups.map( group =>
-        <TouchableOpacity
-          key={ group.id }
-        >
-          <Row styleName="container">
-            <View styleName="vertical space-between">
+        <Row styleName="container" key={ group.id }>
+          <Image style={{width:50, height:50}} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />
+          <View styleName="vertical space-between content">
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('IndexGroupScreen',
+                { id: group.id, name: group.name }
+              )}
+            >
               <Subtitle>{ group.name }</Subtitle>
-              <Caption>June 21  ·  20:00</Caption>
-            </View>
-          </Row>
-        </TouchableOpacity>
+            </TouchableOpacity>
+            <Caption>{ group.description }</Caption>
+          </View>
+          <Button styleName="right-icon"><Icon name="settings" style={{ color: '#311B92' }} /></Button>
+        </Row>
       );
     }
   }
@@ -111,17 +124,12 @@ export default class GroupScreen extends Component {
             >
             <NavigationBar
               styleName="clear"
-              leftComponent={(
-                <Button>
-                  <Text style={{ marginLeft: 15, color: '#FFDE03' }}>All</Text>
-                </Button>
-              )}
               centerComponent={<Title style={{ fontSize: 17 }}>Groups</Title>}
               rightComponent={(
                 <Button
                   style={{ marginRight: 15, backgroundColor: '#FFDE03', borderRadius: 5 }}
-                  onPress={() => this.props.navigation.navigate('AddTransaction',
-                    { getTransactions: this._onRefresh.bind(this) }
+                  onPress={() => this.props.navigation.navigate('AddGroupScreen',
+                    { getGroups: this._onRefresh.bind(this) }
                   )}
                 >
                   <Icon name="plus-button" style={{ color: 'black' }} />

@@ -59,33 +59,33 @@ let theme = _.merge(getTheme(), {
 
 var DismissKeyboard = require('dismissKeyboard');
 
-export default class AddTransactionScreen extends Component {
+export default class AddGroupScreen extends Component {
   static navigationOptions = {
-    title: 'Create Transaction',
+    title: 'Create Group',
   }
 
   constructor(props){
   super(props);
   this.loadApp()
   this.state = {
-    status: [
+    optionRegion: [
         {
-          name: "Select",
-          value: ""
+          name: "West Indonesia",
+          value: "west"
         },
         {
-          name: "Plus",
-          value: "plus"
+          name: "Middle Indonesia",
+          value: "middle"
         },
         {
-          name: "Minus",
-          value: "minus"
+          name: "East Indonesia",
+          value: "east"
         },
       ],
     }
   }
 
-  state = {amount: '', description: '', token: '', success: '', error: []};
+  state = {name: '', description: '', balance: '', selectedRegion: '', token: '', success: '', error: []};
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
@@ -94,7 +94,7 @@ export default class AddTransactionScreen extends Component {
   }
 
   async onButtonPress() {
-    const { selectedStatus, amount, description, token } = this.state;
+    const { name, description, balance, selectedRegion } = this.state;
 
     var config = {
         headers: {
@@ -104,12 +104,13 @@ export default class AddTransactionScreen extends Component {
         }
     };
 
-    if (this.checkInput(selectedStatus, amount)) {
+    if (this.checkInput(name, description, balance, selectedRegion)) {
 
-      await axios.post('http://wangku.herokuapp.com/api/transaction/user', {
-        status: selectedStatus.value,
-        amount: amount.replace(/[^,\d]/g, "").toString(),
-        description: description
+      await axios.post('http://wangku.herokuapp.com/api/group', {
+        name: name,
+        description: description,
+        balance: balance.replace(/[^,\d]/g, "").toString(),
+        region: selectedRegion.value
       }, config)
         .then(response => this.setState({
           success: response.data.data.created
@@ -119,10 +120,12 @@ export default class AddTransactionScreen extends Component {
         }));
 
       if (this.state.error !== undefined) {
-        (this.state.error['status'] != null) ? ToastAndroid.show(this.state.error['status'][0], ToastAndroid.SHORT) : '';
-        (this.state.error['amount'] != null) ? ToastAndroid.show(this.state.error['amount'][0], ToastAndroid.SHORT) : '';
+        (this.state.error['name'] != null) ? ToastAndroid.show(this.state.error['name'][0], ToastAndroid.SHORT) : '';
+        (this.state.error['description'] != null) ? ToastAndroid.show(this.state.error['description'][0], ToastAndroid.SHORT) : '';
+        (this.state.error['balance'] != null) ? ToastAndroid.show(this.state.error['balance'][0], ToastAndroid.SHORT) : '';
+        (this.state.error['region'] != null) ? ToastAndroid.show(this.state.error['region'][0], ToastAndroid.SHORT) : '';
       } else if (this.state.success != null || this.state.success != '' || this.state.success != undefined) {
-        ToastAndroid.show('Successfully Add Transaction', ToastAndroid.SHORT);
+        ToastAndroid.show('Successfully Create Group', ToastAndroid.SHORT);
         this.props.navigation.goBack();
       }
 
@@ -132,16 +135,15 @@ export default class AddTransactionScreen extends Component {
       });
 
     } else {
-      ToastAndroid.show('Status & Amount Cannot Empty.', ToastAndroid.SHORT);
+      ToastAndroid.show('All Filled Cannot Empty.', ToastAndroid.SHORT);
     }
   }
 
-  checkInput(selectedStatus, amount) {
+  checkInput(name, description, balance, selectedRegion) {
     let successInput = false;
 
-    if (selectedStatus !== undefined && amount !== undefined) {
-      if (selectedStatus.value !== '') {
-        this.setState({ zstatus: selectedStatus.value })
+    if (name !== undefined && description !== undefined && balance !== undefined && selectedRegion !== undefined) {
+      if (selectedRegion.value !== '') {
         successInput = true;
       }
     }
@@ -152,7 +154,11 @@ export default class AddTransactionScreen extends Component {
   componentWillUnmount() {
     const {params} = this.props.navigation.state;
     // console.warn(params.refresh);
-    params.getTransactions();
+    params.getGroups();
+  }
+
+  componentWillMount() {
+    this.setState({ selectedRegion: this.state.optionRegion[0] })
   }
 
   formatRupiah(angka, prefix){
@@ -170,41 +176,48 @@ export default class AddTransactionScreen extends Component {
 
   	rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
   	hasil = prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
-    this.setState({ amount: hasil })
+    this.setState({ balance: hasil })
   }
 
   render() {
-    const selectedStatus = this.state.selectedStatus || this.state.status[0];
+    const selectedRegion = this.state.selectedRegion || this.state.optionRegion[0];
     return (
       <StyleProvider style={theme}>
           <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
             <View styleName="vertical h-center content" >
-              <Subtitle styleName="label">Status</Subtitle>
-              <View styleName="selectDropdown">
-                <DropDownMenu
-                  styleName="horizontal"
-                  options={this.state.status}
-                  selectedOption={selectedStatus ? selectedStatus : this.state.status[0]}
-                  onOptionSelected={(status) => this.setState({ selectedStatus: status })}
-                  titleProperty="name"
-                  valueProperty="status.value"
-                />
-              </View>
-              <Subtitle styleName="label">Amount</Subtitle>
+              <Subtitle styleName="label">Name</Subtitle>
               <TextInput
-                placeholder={'Transaction amount here...'}
+                placeholder={'Enter Group Name here...'}
                 styleName="textInput"
-                keyboardType="numeric"
-                value={this.state.amount}
-                onChangeText={ amount => this.formatRupiah(amount) }
+                value={this.state.name}
+                onChangeText={ name => this.setState({ name }) }
               />
               <Subtitle styleName="label">Description</Subtitle>
               <TextInput
-                placeholder={'Transaction description here...'}
+                placeholder={'Enter Group Description here...'}
                 styleName="textInput"
                 value={this.state.description}
                 onChangeText={ description => this.setState({ description }) }
               />
+              <Subtitle styleName="label">Balance</Subtitle>
+              <TextInput
+                placeholder={'Enter Group Balance here...'}
+                styleName="textInput"
+                keyboardType="numeric"
+                value={this.state.balance}
+                onChangeText={ balance => this.formatRupiah(balance) }
+              />
+              <Subtitle styleName="label">Region</Subtitle>
+              <View styleName="selectDropdown">
+                <DropDownMenu
+                  styleName="horizontal"
+                  options={this.state.optionRegion}
+                  selectedOption={selectedRegion ? selectedRegion : this.state.optionRegion[0]}
+                  onOptionSelected={(region) => this.setState({ selectedRegion: region })}
+                  titleProperty="name"
+                  valueProperty="optionRegion.value"
+                />
+              </View>
               <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
                 <Text>Create</Text>
               </Button>

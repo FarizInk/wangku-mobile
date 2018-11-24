@@ -40,11 +40,31 @@ let theme = _.merge(getTheme(), {
         shadowRadius: 5,
         elevation: 2
       },
+  },
+  'shoutem.ui.Button' : {
+    '.info': {
+      padding: 12,
+      borderRadius: 99,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.8,
+      shadowRadius: 5,
+      elevation: 2
+    },
+    '.minus': {
+      backgroundColor: 'red',
+    },
+    '.plus': {
+      backgroundColor: 'green',
+    }
   }
 });
 
 
-export default class TransactionsScreen extends Component {
+export default class AllTransactionsScreen extends Component {
+  static navigationOptions = {
+    title: 'All Transactions',
+  }
   state = { transactions: [], token: '', refreshing: false, isLoading: true }
 
   async loadApp() {
@@ -63,7 +83,7 @@ export default class TransactionsScreen extends Component {
       }
     }
 
-    axios.get('http://wangku.herokuapp.com/api/transactions/today/user', config)
+    axios.get('http://wangku.herokuapp.com/api/transactions/user', config)
       .then(response => this.setState({ transactions: response.data.data, isLoading: false }))
       .catch(error => console.log(error.response.data));
   }
@@ -131,34 +151,6 @@ export default class TransactionsScreen extends Component {
     return (
       <StyleProvider style={theme}>
         <ViewReact style={{ flex: 1, backgroundColor: '#E8EAF6' }}>
-          <ViewReact style={{ height: 23.7, backgroundColor: '#000' }}>
-          </ViewReact>
-          <ViewReact>
-            <ImageBackground
-              style={{ height: 70, backgroundColor: '#311B92', shadowColor: '#000', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.8, elevation: 5 }}
-            >
-            <NavigationBar
-              styleName="clear"
-              leftComponent={(
-                <Button
-                onPress={() => this.props.navigation.navigate('AllTransactionsScreen')}>
-                  <Text style={{ marginLeft: 15, color: '#FFDE03' }}>All</Text>
-                </Button>
-              )}
-              centerComponent={<Title >Wangku - Today</Title>}
-              rightComponent={(
-                <Button
-                  style={{ marginRight: 15, backgroundColor: '#FFDE03', borderRadius: 5 }}
-                  onPress={() => this.props.navigation.navigate('AddTransaction',
-                    { getTransactions: this._onRefresh.bind(this) }
-                  )}
-                >
-                  <Icon name="plus-button" style={{ color: 'black' }} />
-                </Button>
-              )}
-            />
-            </ImageBackground>
-          </ViewReact>
           {this.state.isLoading ? (
             <ViewReact style={styles.container}>
               <ActivityIndicator
