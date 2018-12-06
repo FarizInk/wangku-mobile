@@ -106,7 +106,11 @@ export default class GroupScreen extends Component {
             </TouchableOpacity>
             <Caption>{ group.description }</Caption>
           </View>
-          <Button styleName="right-icon"><Icon name="settings" style={{ color: '#311B92' }} /></Button>
+          <Button
+          styleName="right-icon"
+          onPress={() => this.props.navigation.navigate('UpdateGroupScreen',
+            { id: group.id, getGroups: this._onRefresh.bind(this) }
+          )}><Icon name="settings" style={{ color: '#311B92' }} /></Button>
         </Row>
       );
     }
@@ -129,7 +133,7 @@ export default class GroupScreen extends Component {
                 <Button
                   style={{ marginRight: 15, backgroundColor: '#FFDE03', borderRadius: 5 }}
                   onPress={() => this.props.navigation.navigate('AddGroupScreen',
-                    { getGroups: this._onRefresh.bind(this) }
+                    { id: this._onRefresh.bind(this) }
                   )}
                 >
                   <Icon name="plus-button" style={{ color: 'black' }} />

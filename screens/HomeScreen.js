@@ -35,7 +35,7 @@ export default class HomeScreen extends Component {
     this.loadApp()
   }
 
-  state = { refreshing: false, isLoading: true }
+  state = { token: '', refreshing: false, isLoading: true }
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
@@ -78,7 +78,7 @@ export default class HomeScreen extends Component {
   }
 
   formatRupiah(angka, prefix){
-  	var number_string = angka.toString(),
+  	var number_string = angka.toString().replace(/[^,\d]/g, ""),
   	split   		= number_string.split(','),
   	sisa     		= split[0].length % 3,
   	rupiah     		= split[0].substr(0, sisa),
@@ -118,7 +118,7 @@ export default class HomeScreen extends Component {
             />
             <View styleName="vertical space-between content" style={{  }}>
               <Subtitle>{ this.state.name }</Subtitle>
-              <Caption>Rp { this.state.balance }</Caption>
+              <Caption>Rp { this.formatRupiah(this.state.balance.toString()) }</Caption>
             </View>
           </Row>
         </View>
