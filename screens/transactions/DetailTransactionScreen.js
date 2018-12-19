@@ -68,16 +68,26 @@ export default class AddTransactionScreen extends Component {
       }
     }
 
-    axios.get('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, config)
+    await axios.get('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, config)
       .then(response => this.setState({
         status: response.data.data.status,
         amount: response.data.data.amount,
         description: response.data.data.description,
         date: response.data.data.date,
-        time: response.data.data.time,
-        isLoading: false
+        time: response.data.data.time
       }))
       .catch(error => console.log(error.response.data));
+
+    await axios.get('http://wangku.herokuapp.com/api/datenow/', config)
+      .then(response => this.setState({
+        datenow: response.data.datenow
+      }))
+      .catch(error => console.log(error.response.data));
+    if (this.state.date == this.state.datenow) {
+      this.setState({ isChange: true, isLoading: false });
+    } else {
+      this.setState({ isChange: false, isLoading: false });
+    }
   }
 
   async componentWillMount() {
@@ -119,26 +129,30 @@ export default class AddTransactionScreen extends Component {
           <View styleName="horizontal h-center" style={{ marginBottom: 15 }}>
             <Text>{ this.state.date + " · " + this.state.time }</Text>
           </View>
-          <View styleName="horizontal h-center">
-            <Button
-              styleName="secondary"
-              style={{ backgroundColor: '#311B92', borderWidth: 0 }}
-              onPress={() => this.props.navigation.navigate('EditTransaction',
-                { id: this.state.id, getTransactions: this.componentWillMount.bind(this) }
-              )}
-            >
-              <Icon name="edit" />
-              <Text>EDIT</Text>
-            </Button>
-            <Button
-              styleName="secondary"
-              style={{ backgroundColor: '#D32F2F', borderWidth: 0, marginLeft: 12 }}
-              onPress={() => this.deleteTransaction()}
-            >
-              <Icon name="close" />
-              <Text>DELETE</Text>
-            </Button>
-          </View>
+          {
+            (this.state.isChange == true) ? (
+              <View styleName="horizontal h-center">
+                <Button
+                  styleName="secondary"
+                  style={{ backgroundColor: '#311B92', borderWidth: 0 }}
+                  onPress={() => this.props.navigation.navigate('EditTransaction',
+                    { id: this.state.id, getTransactions: this.componentWillMount.bind(this) }
+                  )}
+                >
+                  <Icon name="edit" />
+                  <Text>EDIT</Text>
+                </Button>
+                <Button
+                  styleName="secondary"
+                  style={{ backgroundColor: '#D32F2F', borderWidth: 0, marginLeft: 12 }}
+                  onPress={() => this.deleteTransaction()}
+                >
+                  <Icon name="close" />
+                  <Text>DELETE</Text>
+                </Button>
+              </View>
+            ) : null
+          }
       </ViewReact>
     );
   }
