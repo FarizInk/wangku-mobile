@@ -6,7 +6,8 @@ import {
   TouchableWithoutFeedback,
   AsyncStorage,
   ToastAndroid,
-  ActivityIndicator
+  ActivityIndicator,
+  ScrollView
 } from 'react-native';
 import {
   Button,
@@ -37,6 +38,11 @@ let theme = _.merge(getTheme(), {
       '.register': {
         marginTop: 35,
         backgroundColor: '#311B92'
+      },
+      '.delete': {
+        marginTop: 35,
+        backgroundColor: '#D32F2F',
+        borderWidth: 0
       },
   },
   'shoutem.ui.TextInput': {
@@ -152,6 +158,32 @@ export default class AddGroupScreen extends Component {
     return successInput;
   }
 
+  async delete() {
+    var config = {
+        headers: {
+          'Accept': "application/json",
+          'Content-Type' : "application/json",
+          'Authorization' : "Bearer " + this.state.token,
+        }
+    };
+
+    await axios.delete('http://wangku.herokuapp.com/api/group/' + this.state.id, config)
+      .then(response => this.setState({
+        success: true
+      }))
+      .catch(error => console.log("error : " + error.response.data));
+
+    if (this.state.success == true) {
+      ToastAndroid.show('Successfully Delete Group', ToastAndroid.SHORT);
+      this.props.navigation.goBack();
+    }
+
+    this.setState({
+      success: '',
+      error: []
+    });
+  }
+
   async getGroup() {
     await this.loadApp()
     var config = {
@@ -209,46 +241,51 @@ export default class AddGroupScreen extends Component {
   renderUpdateGroup() {
     const selectedRegion = this.state.selectedRegion || this.state.optionRegion[0];
     return (
-      <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
-        <View styleName="vertical h-center content" >
-          <Subtitle styleName="label">Name</Subtitle>
-          <TextInput
-            placeholder={'Enter Group Name here...'}
-            styleName="textInput"
-            value={this.state.name}
-            onChangeText={ name => this.setState({ name }) }
-          />
-          <Subtitle styleName="label">Description</Subtitle>
-          <TextInput
-            placeholder={'Enter Group Description here...'}
-            styleName="textInput"
-            value={this.state.description}
-            onChangeText={ description => this.setState({ description }) }
-          />
-          <Subtitle styleName="label">Balance</Subtitle>
-          <TextInput
-            placeholder={'Enter Group Balance here...'}
-            styleName="textInput"
-            keyboardType="numeric"
-            value={`${this.state.balance}`}
-            onChangeText={ balance => this.formatRupiah(balance) }
-          />
-          <Subtitle styleName="label">Region</Subtitle>
-          <View styleName="selectDropdown">
-            <DropDownMenu
-              styleName="horizontal"
-              options={this.state.optionRegion}
-              selectedOption={selectedRegion ? selectedRegion : this.state.optionRegion[0]}
-              onOptionSelected={(region) => this.setState({ selectedRegion: region })}
-              titleProperty="name"
-              valueProperty="optionRegion.value"
+      <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+        <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
+          <View styleName="vertical h-center content" >
+            <Subtitle styleName="label">Name</Subtitle>
+            <TextInput
+              placeholder={'Enter Group Name here...'}
+              styleName="textInput"
+              value={this.state.name}
+              onChangeText={ name => this.setState({ name }) }
             />
+            <Subtitle styleName="label">Description</Subtitle>
+            <TextInput
+              placeholder={'Enter Group Description here...'}
+              styleName="textInput"
+              value={this.state.description}
+              onChangeText={ description => this.setState({ description }) }
+            />
+            <Subtitle styleName="label">Balance</Subtitle>
+            <TextInput
+              placeholder={'Enter Group Balance here...'}
+              styleName="textInput"
+              keyboardType="numeric"
+              value={`${this.state.balance}`}
+              onChangeText={ balance => this.formatRupiah(balance) }
+            />
+            <Subtitle styleName="label">Region</Subtitle>
+            <View styleName="selectDropdown">
+              <DropDownMenu
+                styleName="horizontal"
+                options={this.state.optionRegion}
+                selectedOption={selectedRegion ? selectedRegion : this.state.optionRegion[0]}
+                onOptionSelected={(region) => this.setState({ selectedRegion: region })}
+                titleProperty="name"
+                valueProperty="optionRegion.value"
+              />
+            </View>
+            <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
+              <Text>Update</Text>
+            </Button>
+            <Button styleName="secondary delete" onPress={this.delete.bind(this)}>
+              <Text>Delete Group</Text>
+            </Button>
           </View>
-          <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
-            <Text>Update</Text>
-          </Button>
-        </View>
-      </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </ScrollView>
     )
   }
 

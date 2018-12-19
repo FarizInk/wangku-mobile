@@ -133,7 +133,7 @@ export default class GroupScreen extends Component {
                 <Button
                   style={{ marginRight: 15, backgroundColor: '#FFDE03', borderRadius: 5 }}
                   onPress={() => this.props.navigation.navigate('AddGroupScreen',
-                    { id: this._onRefresh.bind(this) }
+                    { getGroups: this._onRefresh.bind(this) }
                   )}
                 >
                   <Icon name="plus-button" style={{ color: 'black' }} />

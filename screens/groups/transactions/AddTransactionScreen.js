@@ -61,7 +61,7 @@ var DismissKeyboard = require('dismissKeyboard');
 
 export default class AddTransactionScreen extends Component {
   static navigationOptions = {
-    title: 'Create Transaction',
+    title: 'Create Group Transaction',
   }
 
   constructor(props){
@@ -141,7 +141,6 @@ export default class AddTransactionScreen extends Component {
 
     if (selectedStatus !== undefined && amount !== undefined) {
       if (selectedStatus.value !== '') {
-        this.setState({ zstatus: selectedStatus.value })
         successInput = true;
       }
     }
@@ -152,7 +151,7 @@ export default class AddTransactionScreen extends Component {
   componentWillUnmount() {
     const {params} = this.props.navigation.state;
     // console.warn(params.refresh);
-    params.getTransactions();
+    // params.getTransactions();
   }
 
   formatRupiah(angka, prefix){

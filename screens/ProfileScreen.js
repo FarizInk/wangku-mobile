@@ -50,41 +50,59 @@ let theme = _.merge(getTheme(), {
 
 export default class ProfileScreen extends Component {
 
-logout = async() => {
-  await AsyncStorage.clear()
-  this.props.navigation.navigate('AuthLoading')
-}
-
-state = { refreshing: false, isLoading: true }
-
-async loadApp() {
-  const apiToken = await AsyncStorage.getItem('apiToken')
-
-  this.setState({token: apiToken})
-}
-
-async getProfile() {
-  await this.loadApp()
-  var config = {
-    headers: {
-      'Accept': "application/json",
-      'Content-Type': "application/json",
-      'Authorization': "Bearer " + this.state.token
-    }
+  logout = async() => {
+    await AsyncStorage.clear()
+    this.props.navigation.navigate('AuthLoading')
   }
 
-  await axios.get('http://wangku.herokuapp.com/api/profile', config)
-    .then(response => this.setState({
-      name: response.data.data.name,
-      email: response.data.data.email,
-      balance: response.data.data.balance,
-      gender: response.data.meta.gender,
-      region: response.data.meta.region,
-      photo: response.data.meta.photo,
-      verified: response.data.data.verified,
-      isLoading: false
-    }))
-    .catch(error => console.log(error.response.data));
+  state = { token: "", refreshing: false, isLoading: true }
+
+  async loadApp() {
+    const apiToken = await AsyncStorage.getItem('apiToken')
+
+    this.setState({token: apiToken})
+  }
+
+  async getProfile() {
+    await this.loadApp()
+    var config = {
+      headers: {
+        'Accept': "application/json",
+        'Content-Type': "application/json",
+        'Authorization': "Bearer " + this.state.token
+      }
+    }
+
+    await axios.get('http://wangku.herokuapp.com/api/profile', config)
+      .then(response => this.setState({
+        name: response.data.data.name,
+        email: response.data.data.email,
+        balance: response.data.data.balance,
+        gender: response.data.meta.gender,
+        region: response.data.meta.region,
+        photo: response.data.meta.photo,
+        verified: response.data.data.verified,
+        isLoading: false
+      }))
+      .catch(error => console.log(error.response.data));
+  }
+
+  async verif() {
+    var config = {
+      headers: {
+        'Accept': "application/json",
+        'Authorization': "Bearer " + this.state.token
+      }
+    }
+
+    await axios.get('http://wangku.herokuapp.com/api/profile/sendemail', config)
+      .then(response => this.setState({
+        message: response.data.message
+      }))
+      .catch(error => console.warn(error.response.data));
+    if (this.state.message !== undefined) {
+      ToastAndroid.show(this.state.message, ToastAndroid.SHORT);
+    }
   }
 
   _pickImage = async () => {
@@ -162,7 +180,7 @@ async getProfile() {
             />
             <View styleName="horizontal" style={{ marginLeft: 10 }}>
               <Button onPress={ this._pickImage }>
-                <Text style={{ color: '#311B92' }}>Change Photo</Text>
+                <Text style={{ color: '#311B92', fontWeight: '100' }}>Change Photo</Text>
               </Button>
             </View>
           </Row>
@@ -172,18 +190,18 @@ async getProfile() {
               (this.state.verified == null) ? (
                 <Button style={{ borderWidth: 0 }}>
                   <Icon name="clear-text" style={{ color: '#D32F2F' }}/>
-                  <Text style={{ color: '#D32F2F' }}>Unverified User!</Text>
+                  <Text style={{ color: '#D32F2F', fontWeight: '100' }}>Unverified!</Text>
                 </Button>
               ) : (
-                <Button style={{ borderWidth: 0 }}>
-                  <Icon name="clear-text" style={{ color: '#D32F2F' }}/>
-                  <Text style={{ color: '#D32F2F' }}>Unverified User!</Text>
+                <Button style={{ borderWidth: 0, backgroundColor: '#2E7D32' }}>
+                  <Icon name="checkbox-on" style={{ color: '#fff' }}/>
+                  <Text style={{ color: '#fff', fontWeight: '100' }}>Verified</Text>
                 </Button>
               )
             }
             { (this.state.verified == null) ? (
-              <Button style={{ marginLeft: 10, backgroundColor: '#FFDE03', borderWidth: 0 }}>
-                <Text style={{ color: '#311B92', fontWeight: 'bold' }}>Send Verification!</Text>
+              <Button style={{ marginLeft: 10, backgroundColor: '#311B92', borderWidth: 0 }} onPress={ this.verif.bind(this) }>
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Send Verification!</Text>
               </Button>
             ) :  null }
           </View>
@@ -223,12 +241,12 @@ async getProfile() {
               { refresh: this._onRefresh.bind(this) }
             )}>
               <Icon style={{ color: '#311B92' }} name="settings" />
-              <Text style={{ color: '#311B92' }}>Update</Text>
+              <Text style={{ color: '#311B92', fontWeight: 'normal' }}>Update</Text>
             </Button>
 
             <Button styleName="confirmation secondary" onPress={this.logout} style={{ marginTop: 25, backgroundColor: '#D32F2F', borderWidth: 0 }}>
               <Icon name="exit-to-app" />
-              <Text>Logout</Text>
+              <Text style={{ fontWeight: 'normal' }}>Logout</Text>
             </Button>
           </View>
         </View>

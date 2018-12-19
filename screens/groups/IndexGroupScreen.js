@@ -13,6 +13,7 @@ import { createStackNavigator, createDrawerNavigator, createBottomTabNavigator, 
 import HomeGroupScreen from './HomeGroupScreen';
 import TransactionsGroupScreen from './TransactionsGroupScreen';
 import AboutGroupScreen from './AboutGroupScreen';
+import AddTransactionScreen from './transactions/AddTransactionScreen';
 
 const GroupTabNavigator = createMaterialTopTabNavigator({
   Home: {
@@ -65,7 +66,7 @@ const GroupStackNavigator = createStackNavigator({
       header: null,
       title: 'Group',
     })
-  },
+  }
 });
 
 export default class IndexGroupScreen extends Component {
@@ -73,9 +74,17 @@ export default class IndexGroupScreen extends Component {
       const {params = {}} = navigation.state;
       return {
           title: params.name,
+          headerTitleStyle :{color:'#fff'},
+          headerStyle: {backgroundColor:'#311B92'},
+          headerLeftStyle: {color:'#fff'},
+          headerLeft: (
+            <Button styleName="clear" onPress={ () => { navigation.goBack() } }>
+              <Icon name="back" style={{ color: "white" }} />
+            </Button>
+          ),
           headerRight: (
-            <Button styleName="clear">
-              <Icon name="plus-button" />
+            <Button styleName="clear" onPress={ () => { navigation.navigate("AddGroupTransaction") } }>
+              <Icon name="plus-button" style={{ color: "#FFDE03" }} />
             </Button>
           )
       };

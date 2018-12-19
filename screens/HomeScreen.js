@@ -116,7 +116,7 @@ export default class HomeScreen extends Component {
               style={{ borderWidth: 2, borderColor: 'white', width: 50, height: 50, borderRadius: 99, marginLeft: 20 }}
               source={{ uri: photo }}
             />
-            <View styleName="vertical space-between content" style={{  }}>
+            <View styleName="vertical space-between content">
               <Subtitle>{ this.state.name }</Subtitle>
               <Caption>Rp { this.formatRupiah(this.state.balance.toString()) }</Caption>
             </View>
