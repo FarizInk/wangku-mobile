@@ -83,7 +83,8 @@ export default class IndexGroupScreen extends Component {
             </Button>
           ),
           headerRight: (
-            <Button styleName="clear" onPress={ () => { navigation.navigate("AddGroupTransaction") } }>
+            <Button styleName="clear" onPress={ () => { navigation.navigate("AddGroupTransaction",
+              { gid: params.id }) } }>
               <Icon name="plus-button" style={{ color: "#FFDE03" }} />
             </Button>
           )
@@ -92,7 +93,7 @@ export default class IndexGroupScreen extends Component {
 
   async componentWillMount() {
     const { params } = this.props.navigation.state;
-    this.setState({ id: params.id })
+    this.setState({ groupId: params.id })
   }
 
   render() {

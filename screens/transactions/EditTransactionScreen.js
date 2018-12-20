@@ -61,7 +61,7 @@ let theme = _.merge(getTheme(), {
 
 var DismissKeyboard = require('dismissKeyboard');
 
-export default class AddTransactionScreen extends Component {
+export default class EditTransactionScreen extends Component {
   static navigationOptions = {
     title: 'Update Transaction',
   }

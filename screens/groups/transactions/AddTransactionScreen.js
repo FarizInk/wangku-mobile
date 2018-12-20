@@ -106,7 +106,7 @@ export default class AddTransactionScreen extends Component {
 
     if (this.checkInput(selectedStatus, amount)) {
 
-      await axios.post('http://wangku.herokuapp.com/api/transaction/user', {
+      await axios.post('http://wangku.herokuapp.com/api/transaction/group/' + this.state.groupId, {
         status: selectedStatus.value,
         amount: amount.replace(/[^,\d]/g, "").toString(),
         description: description
@@ -146,6 +146,11 @@ export default class AddTransactionScreen extends Component {
     }
 
     return successInput;
+  }
+
+  async componentWillMount() {
+    const { params } = this.props.navigation.state;
+    this.setState({ groupId: params.gid })
   }
 
   componentWillUnmount() {
