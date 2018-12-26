@@ -95,7 +95,7 @@ export default class GroupScreen extends Component {
     } else {
       return this.state.groups.map( group =>
         <Row styleName="container" key={ group.id }>
-          <Image style={{width:50, height:50}} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />
+          <Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />
           <View styleName="vertical space-between content">
             <TouchableOpacity
               onPress={() => this.props.navigation.navigate('IndexGroupScreen',
@@ -106,11 +106,17 @@ export default class GroupScreen extends Component {
             </TouchableOpacity>
             <Caption>{ group.description }</Caption>
           </View>
-          <Button
-          styleName="right-icon"
-          onPress={() => this.props.navigation.navigate('UpdateGroupScreen',
-            { id: group.id, getGroups: this._onRefresh.bind(this) }
-          )}><Icon name="settings" style={{ color: '#311B92' }} /></Button>
+          {
+            (this.state.userid == group.owner) ? (
+              <Button
+                styleName="right-icon"
+                onPress={() => this.props.navigation.navigate('UpdateGroupScreen',
+                  { id: group.id, getGroups: this._onRefresh.bind(this) }
+                )}>
+                <Icon name="settings" style={{ color: '#311B92' }} />
+              </Button>
+            ) : null
+          }
         </Row>
       );
     }

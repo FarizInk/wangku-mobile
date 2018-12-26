@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {
   View as ViewReact,
-  StyleSheet
+  StyleSheet,
+  AsyncStorage
 } from 'react-native';
 import {
   Text,
@@ -71,7 +72,7 @@ const GroupStackNavigator = createStackNavigator({
 
 export default class IndexGroupScreen extends Component {
   static navigationOptions = ({navigation}) => {
-      const {params = {}} = navigation.state;
+      const { params = {} } = navigation.state;
       return {
           title: params.name,
           headerTitleStyle :{color:'#fff'},
@@ -92,8 +93,9 @@ export default class IndexGroupScreen extends Component {
   };
 
   async componentWillMount() {
-    const { params } = this.props.navigation.state;
-    this.setState({ groupId: params.id })
+    const { params } = await this.props.navigation.state;
+    await this.setState({ groupId: params.id })
+    await AsyncStorage.setItem('groupId', this.state.groupId.toString())
   }
 
   render() {

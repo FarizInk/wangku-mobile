@@ -104,7 +104,7 @@ export default class AddTransactionScreen extends Component {
         }
     };
 
-    if (this.checkInput(selectedStatus, amount)) {
+    if (this.checkInput(selectedStatus, amount, description)) {
 
       await axios.post('http://wangku.herokuapp.com/api/transaction/group/' + this.state.groupId, {
         status: selectedStatus.value,
@@ -132,14 +132,14 @@ export default class AddTransactionScreen extends Component {
       });
 
     } else {
-      ToastAndroid.show('Status & Amount Cannot Empty.', ToastAndroid.SHORT);
+      ToastAndroid.show('Status, Amount & Description Cannot Empty.', ToastAndroid.SHORT);
     }
   }
 
-  checkInput(selectedStatus, amount) {
+  checkInput(selectedStatus, amount, description) {
     let successInput = false;
 
-    if (selectedStatus !== undefined && amount !== undefined) {
+    if (selectedStatus !== undefined && amount !== undefined && description !== undefined) {
       if (selectedStatus.value !== '') {
         successInput = true;
       }
@@ -151,12 +151,6 @@ export default class AddTransactionScreen extends Component {
   async componentWillMount() {
     const { params } = this.props.navigation.state;
     this.setState({ groupId: params.gid })
-  }
-
-  componentWillUnmount() {
-    const {params} = this.props.navigation.state;
-    // console.warn(params.refresh);
-    // params.getTransactions();
   }
 
   formatRupiah(angka, prefix){
