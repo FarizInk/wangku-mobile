@@ -157,7 +157,33 @@ export default class AddTransactionScreen extends Component {
   }
 
   async changePassword() {
-    console.warn("password change!");
+    var config = {
+        headers: {
+          'Accept': "application/json",
+          'Content-Type' : "application/json",
+          'Authorization' : "Bearer " + this.state.token,
+        }
+    };
+    await axios.post('http://wangku.herokuapp.com/api/profile/update/password', {
+      password: this.state.password
+    }, config)
+      .then(response => this.setState({
+        success: response.data.message
+      }))
+      .catch(error => this.setState({
+        error: error.response.data.errors
+      }));
+    if (this.state.error !== undefined) {
+      (this.state.error['password'] != null) ? ToastAndroid.show(this.state.error['password'][0], ToastAndroid.SHORT) : '';
+    } else if (this.state.success != null || this.state.success != '' || this.state.success != undefined) {
+      ToastAndroid.show('Successfully Update Email', ToastAndroid.SHORT);
+      this.props.navigation.goBack();
+    }
+
+    this.setState({
+      success: '',
+      error: []
+    });
   }
 
   checkInput(name, balance, selectedGender, selectedRegion) {
@@ -208,7 +234,9 @@ export default class AddTransactionScreen extends Component {
     await axios.post('http://wangku.herokuapp.com/api/profile/update/email', {
       email: this.state.email
     }, config)
-      .then(response => console.log(response.data))
+      .then(response => this.setState({
+        success: response.data.message
+      }))
       .catch(error => this.setState({
         error: error.response.data.errors
       }));
@@ -259,7 +287,7 @@ export default class AddTransactionScreen extends Component {
     return (
       <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
         <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
-          <View styleName="vertical h-center content" >
+          <View styleName="vertical h-center content" style={{ marginBottom: 150 }}>
             <Subtitle styleName="label">Name</Subtitle>
             <TextInput
               placeholder={'Your Name Here'}

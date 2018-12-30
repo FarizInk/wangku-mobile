@@ -73,6 +73,7 @@ export default class AddTransactionScreen extends Component {
         status: response.data.data.status,
         amount: response.data.data.amount,
         description: response.data.data.description,
+        date_human: response.data.data.date_human,
         date: response.data.data.date,
         time: response.data.data.time
       }))
@@ -127,7 +128,7 @@ export default class AddTransactionScreen extends Component {
             <Text style={{ color: '#eee', fontSize: 16, marginTop: 12 }}>{ this.state.description }</Text>
           </View>
           <View styleName="horizontal h-center" style={{ marginBottom: 15 }}>
-            <Text>{ this.state.date + " · " + this.state.time }</Text>
+            <Text>{ this.state.date_human + " · " + this.state.time }</Text>
           </View>
           {
             (this.state.isChange == true) ? (

@@ -14,25 +14,35 @@ import { createStackNavigator, createDrawerNavigator, createBottomTabNavigator, 
 import HomeGroupScreen from './HomeGroupScreen';
 import TransactionsGroupScreen from './TransactionsGroupScreen';
 import AboutGroupScreen from './AboutGroupScreen';
-import AddTransactionScreen from './transactions/AddTransactionScreen';
+import AddGroupTransactionScreen from './transactions/AddTransactionScreen';
+import AddMemberScreen from './members/AddMemberScreen';
 
 const GroupTabNavigator = createMaterialTopTabNavigator({
   Home: {
     screen: HomeGroupScreen,
     navigationOptions: {
-      tabBarLabel: 'Home'
+      tabBarLabel: 'Home',
+      tabBarIcon: ({tintColor}) => (
+        <Icon name="equalizer" style={{color: tintColor}} size={24}/>
+      )
     }
   },
   Transactions: {
     screen: TransactionsGroupScreen,
     navigationOptions: {
-      tabBarLabel: 'Transactions'
+      tabBarLabel: 'Transactions',
+      tabBarIcon: ({tintColor}) => (
+        <Icon name="receipt" style={{color: tintColor}} size={24}/>
+      )
     }
   },
   About: {
     screen: AboutGroupScreen,
     navigationOptions: {
-      tabBarLabel: 'About'
+      tabBarLabel: 'About',
+      tabBarIcon: ({tintColor}) => (
+        <Icon name="about" style={{color: tintColor}} size={24}/>
+      )
     }
   }
 }, {
@@ -55,8 +65,8 @@ const GroupTabNavigator = createMaterialTopTabNavigator({
       height: 2,
       backgroundColor: '#311B92'
     },
-    showIcon: false,
-    showLabel: true,
+    showIcon: true,
+    showLabel: false,
   }
 });
 
@@ -67,7 +77,9 @@ const GroupStackNavigator = createStackNavigator({
       header: null,
       title: 'Group',
     })
-  }
+  },
+  AddGroupTransactionScreen: AddGroupTransactionScreen,
+  AddMemberScreen: AddMemberScreen
 });
 
 export default class IndexGroupScreen extends Component {
@@ -84,9 +96,9 @@ export default class IndexGroupScreen extends Component {
             </Button>
           ),
           headerRight: (
-            <Button styleName="clear" onPress={ () => { navigation.navigate("AddGroupTransaction",
+            <Button styleName="clear" onPress={ () => { navigation.navigate("AddGroupTransactionScreen",
               { gid: params.id }) } }>
-              <Icon name="plus-button" style={{ color: "#FFDE03" }} />
+              <Icon name="search" style={{ color: "#FFDE03" }} />
             </Button>
           )
       };
@@ -96,6 +108,10 @@ export default class IndexGroupScreen extends Component {
     const { params } = await this.props.navigation.state;
     await this.setState({ groupId: params.id })
     await AsyncStorage.setItem('groupId', this.state.groupId.toString())
+  }
+
+  componentWillUnmount() {
+    AsyncStorage.setItem('groupId', null)
   }
 
   render() {

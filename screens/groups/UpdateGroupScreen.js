@@ -7,7 +7,7 @@ import {
   AsyncStorage,
   ToastAndroid,
   ActivityIndicator,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import {
   Button,
@@ -16,11 +16,14 @@ import {
   getTheme,
   TextInput,
   DropDownMenu,
-  Subtitle
+  Subtitle,
+  Row,
+  Image
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
 import axios from 'axios';
+import { ImagePicker } from 'expo';
 
 let theme = _.merge(getTheme(), {
   'shoutem.ui.View': {
@@ -200,12 +203,53 @@ export default class AddGroupScreen extends Component {
         description: response.data.data.description,
         balance: response.data.data.balance,
         oldRegion: response.data.data.region,
+        photo: response.data.data.photo,
         isLoading: false
       }))
       .catch(error => console.log(error.response.data));
       this.formatRupiah(this.state.balance.toString());
 
       (this.state.oldRegion == "west") ? (this.setState({ selectedRegion: this.state.optionRegion[0] })) : ((this.state.oldRegion == "middle") ? (this.setState({ selectedRegion: this.state.optionRegion[1] })) : (this.setState({ selectedRegion: this.state.optionRegion[2] })));
+  }
+
+  _pickImage = async () => {
+    var config = {
+      headers: {
+        'Accept': "application/json",
+        'Content-Type': "multipart/form-data",
+        'Authorization': "Bearer " + this.state.token
+      }
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 4],
+    });
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      this.setState({ isLoading: true });
+      ToastAndroid.show("Please wait a minute.", ToastAndroid.SHORT)
+      const form = new FormData();
+      form.append('photo', {
+        uri: result.uri,
+        type: 'image/jpeg',
+        name: 'image.jpg',
+      });
+
+      await axios.post('http://wangku.herokuapp.com/api/group/' + this.state.id + '/photo', form, config)
+        .then(response => ToastAndroid.show(response.data.message, ToastAndroid.SHORT))
+        .catch(error => this.setState({
+          error: error.response.data
+        }));
+
+      if (this.state.error !== undefined) {
+        (this.state.error['photo'] != null) ? ToastAndroid.show(this.state.error['status'][0], ToastAndroid.SHORT) : '';
+      }
+      this.setState({ error: '' });
+      this.props.navigation.goBack();
+    }
   }
 
   componentWillUnmount() {
@@ -240,10 +284,27 @@ export default class AddGroupScreen extends Component {
 
   renderUpdateGroup() {
     const selectedRegion = this.state.selectedRegion || this.state.optionRegion[0];
+    let photo = this.state.photo;
+    if (this.state.photo == undefined || this.state.photo == null) {
+      photo = 'http://wangku.herokuapp.com/img/avatar/default.jpg';
+    } else {
+      photo = 'http://wangku.herokuapp.com/images/group/' + this.state.photo;
+    }
     return (
       <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
         <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
-          <View styleName="vertical h-center content" >
+          <View styleName="vertical h-center content" style={{ marginBottom: 20 }}>
+            <Row styleName="container" style={{ backgroundColor: 'transparent' }}>
+              <Image
+                style={{ borderWidth: 10, borderColor: 'white', width: 150, height: 150, borderRadius: 99, marginLeft: 20 }}
+                source={{ uri: photo }}
+              />
+              <View styleName="horizontal" style={{ marginLeft: 10 }}>
+                <Button styleName="secondary register" onPress={ this._pickImage }>
+                  <Text style={{ fontWeight: '100' }}>Change Photo</Text>
+                </Button>
+              </View>
+            </Row>
             <Subtitle styleName="label">Name</Subtitle>
             <TextInput
               placeholder={'Enter Group Name here...'}

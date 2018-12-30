@@ -30,7 +30,6 @@ import AllTransactionsScreen from './screens/transactions/AllTransactionsScreen'
 import AddGroupScreen from './screens/groups/AddGroupScreen';
 import IndexGroupScreen from './screens/groups/IndexGroupScreen';
 import UpdateGroupScreen from './screens/groups/UpdateGroupScreen';
-import AddGroupTransaction from './screens/groups/transactions/AddTransactionScreen';
 
 const AuthStackNavigator = createStackNavigator({
   Welcome: WelcomeScreen,
@@ -80,7 +79,7 @@ const AppTabNavigator = createMaterialTopTabNavigator({
   Group: {
     screen: GroupScreen,
     navigationOptions: {
-      tabBarLabel: 'Group',
+      tabBarLabel: 'Groups',
       tabBarIcon: ({tintColor}) => (
         <Icon name="users" style={{color: tintColor}} size={24}/>
       )
@@ -101,14 +100,14 @@ const AppTabNavigator = createMaterialTopTabNavigator({
     inactiveTintColor: 'grey',
     style: {
       backgroundColor: 'white',
-      marginBottom: -7
+      // marginBottom: -7 //comment this for label false
     },
     indicatorStyle: {
       height: 0,
       backgroundColor: '#311B92'
     },
     showIcon: true,
-    showLabel: true,
+    showLabel: false,
   }
 });
 
@@ -127,9 +126,7 @@ const AppStackNavigator = createStackNavigator({
   AllTransactionsScreen: AllTransactionsScreen,
   AddGroupScreen: AddGroupScreen,
   IndexGroupScreen: IndexGroupScreen,
-  UpdateGroupScreen: UpdateGroupScreen,
-
-  AddGroupTransaction: AddGroupTransaction,
+  UpdateGroupScreen: UpdateGroupScreen
 });
 
 // const AppDrawerNavigator = createDrawerNavigator({

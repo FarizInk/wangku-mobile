@@ -126,7 +126,7 @@ export default class AllTransactionsScreen extends Component {
               >
                 <Subtitle>{ transaction.description }</Subtitle>
               </TouchableOpacity>
-              <Caption>{ transaction.created }</Caption>
+              <Caption>{ transaction.date_human }</Caption>
             </View>
             <View styleName="vertical space-between">
               { (transaction.status == "plus") ? (

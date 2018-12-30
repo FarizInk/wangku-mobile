@@ -95,7 +95,9 @@ export default class GroupScreen extends Component {
     } else {
       return this.state.groups.map( group =>
         <Row styleName="container" key={ group.id }>
-          <Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />
+          {
+            (group.photo == null) ? (<Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image style={{ width: 50, height: 50, borderRadius: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/group/' + group.photo }} />)
+          }
           <View styleName="vertical space-between content">
             <TouchableOpacity
               onPress={() => this.props.navigation.navigate('IndexGroupScreen',

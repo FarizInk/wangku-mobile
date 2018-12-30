@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   AsyncStorage,
   ToastAndroid,
+  ScrollView
 } from 'react-native';
 import {
   Button,
@@ -14,7 +15,10 @@ import {
   getTheme,
   TextInput,
   DropDownMenu,
-  Subtitle
+  Subtitle,
+  NavigationBar,
+  Title,
+  Icon
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -61,6 +65,7 @@ var DismissKeyboard = require('dismissKeyboard');
 
 export default class AddTransactionScreen extends Component {
   static navigationOptions = {
+    header: null,
     title: 'Create Group Transaction',
   }
 
@@ -89,8 +94,9 @@ export default class AddTransactionScreen extends Component {
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
+    const groupId = await AsyncStorage.getItem('groupId')
 
-    this.setState({token: apiToken})
+    this.setState({ token: apiToken, groupId: groupId })
   }
 
   async onButtonPress() {
@@ -153,6 +159,12 @@ export default class AddTransactionScreen extends Component {
     this.setState({ groupId: params.gid })
   }
 
+  componentWillUnmount() {
+    const {params} = this.props.navigation.state;
+    // console.warn(params.refresh);
+    params.getTransactions();
+  }
+
   formatRupiah(angka, prefix){
   	var number_string = angka.replace(/[^,\d]/g, "").toString(),
   	split   		= number_string.split(','),
@@ -177,35 +189,48 @@ export default class AddTransactionScreen extends Component {
       <StyleProvider style={theme}>
           <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
             <View styleName="vertical h-center content" >
-              <Subtitle styleName="label">Status</Subtitle>
-              <View styleName="selectDropdown">
-                <DropDownMenu
-                  styleName="horizontal"
-                  options={this.state.status}
-                  selectedOption={selectedStatus ? selectedStatus : this.state.status[0]}
-                  onOptionSelected={(status) => this.setState({ selectedStatus: status })}
-                  titleProperty="name"
-                  valueProperty="status.value"
+              <NavigationBar
+                centerComponent={<Title>Add Transaction</Title>}
+              />
+              <ScrollView style={{ flex: 1 }}>
+                <Subtitle styleName="label" style={{ marginTop: 100 }}>Status</Subtitle>
+                <View styleName="selectDropdown">
+                  <DropDownMenu
+                    styleName="horizontal"
+                    options={this.state.status}
+                    selectedOption={selectedStatus ? selectedStatus : this.state.status[0]}
+                    onOptionSelected={(status) => this.setState({ selectedStatus: status })}
+                    titleProperty="name"
+                    valueProperty="status.value"
+                  />
+                </View>
+                <Subtitle styleName="label">Amount</Subtitle>
+                <TextInput
+                  placeholder={'Transaction amount here...'}
+                  styleName="textInput"
+                  keyboardType="numeric"
+                  value={this.state.amount}
+                  onChangeText={ amount => this.formatRupiah(amount) }
                 />
-              </View>
-              <Subtitle styleName="label">Amount</Subtitle>
-              <TextInput
-                placeholder={'Transaction amount here...'}
-                styleName="textInput"
-                keyboardType="numeric"
-                value={this.state.amount}
-                onChangeText={ amount => this.formatRupiah(amount) }
-              />
-              <Subtitle styleName="label">Description</Subtitle>
-              <TextInput
-                placeholder={'Transaction description here...'}
-                styleName="textInput"
-                value={this.state.description}
-                onChangeText={ description => this.setState({ description }) }
-              />
-              <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
-                <Text>Create</Text>
-              </Button>
+                <Subtitle styleName="label">Description</Subtitle>
+                <TextInput
+                  placeholder={'Transaction description here...'}
+                  styleName="textInput"
+                  value={this.state.description}
+                  onChangeText={ description => this.setState({ description }) }
+                />
+                <View styleName="horizontal" style={{ marginTop: 20 }}>
+                  <Button styleName="confirmation" onPress={ () => { this.props.navigation.goBack() } }>
+                    <Icon name="back" />
+                    <Text>Back</Text>
+                  </Button>
+
+                  <Button styleName="confirmation secondary register" onPress={ this.onButtonPress.bind(this) }>
+                    <Icon name="plus-button" />
+                    <Text>Create</Text>
+                  </Button>
+                </View>
+              </ScrollView>
             </View>
           </TouchableWithoutFeedback>
       </StyleProvider>

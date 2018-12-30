@@ -38,7 +38,7 @@ let theme = _.merge(getTheme(), {
         shadowOpacity: 0.8,
         shadowRadius: 5,
         elevation: 2
-      },
+      }
   }
 });
 
@@ -64,6 +64,10 @@ export default class TransactionsGroupScreen extends Component {
     }
 
     axios.get('http://wangku.herokuapp.com/api/transactions/today/group/' + this.state.groupId, config)
+      .then(response => this.setState({ today: response.data.data }))
+      .catch(error => console.log(error.response.data));
+
+    axios.get('http://wangku.herokuapp.com/api/transactions/group/' + this.state.groupId, config)
       .then(response => this.setState({ transactions: response.data.data, isLoading: false }))
       .catch(error => console.log(error.response.data));
   }
@@ -91,6 +95,30 @@ export default class TransactionsGroupScreen extends Component {
   }
 
   renderTransactions() {
+    return this.state.transactions.map(transaction =>
+        <Row styleName="container" key={ transaction.id }>
+          <View styleName="vertical space-between content">
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('DetailTransaction',
+                { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
+              )}
+            >
+              <Subtitle>{ transaction.description }</Subtitle>
+            </TouchableOpacity>
+            <Caption>{ transaction.created }</Caption>
+          </View>
+          <View styleName="vertical space-between">
+            { (transaction.status == "plus") ? (
+              <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(transaction.amount) }</Caption>
+            ) : (
+              <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(transaction.amount) }</Caption>
+            ) }
+          </View>
+        </Row>
+    );
+  }
+
+  renderToday() {
     if (this.state.transactions == "") {
       return (
         <Text style={{ textAlign: 'center'}}>You Have No Transaction Today.</Text>
@@ -106,14 +134,20 @@ export default class TransactionsGroupScreen extends Component {
               >
                 <Subtitle>{ transaction.description }</Subtitle>
               </TouchableOpacity>
-              <Caption>{ transaction.created }</Caption>
+              <Row styleName="small" style={{ height: 30, paddingLeft: 0, marginBottom: 0 }}>
+                {
+                  (transaction.photo == null) ? (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/profile/' + transaction.photo }} />)
+                }
+              <Text>{ transaction.name }</Text>
+              </Row>
             </View>
-            <View styleName="vertical space-between">
+            <View styleName="vertical space-between content">
               { (transaction.status == "plus") ? (
                 <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(transaction.amount) }</Caption>
               ) : (
                 <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(transaction.amount) }</Caption>
               ) }
+              <Caption style={{ textAlign: 'right' }}>{ transaction.created }</Caption>
             </View>
           </Row>
       );
@@ -150,7 +184,18 @@ export default class TransactionsGroupScreen extends Component {
             }
             >
               <View styleName="vertical" style={{ marginTop: 12, marginBottom: 12 }}>
-                {this.renderTransactions()}
+                <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginBottom: 5 }}>
+                  <Text>Today</Text>
+                  <Button
+                    onPress={() => this.props.navigation.navigate('AddGroupTransactionScreen',
+                      { getTransactions: this._onRefresh.bind(this) }
+                    )}
+                    >
+                    <Icon name="plus-button" />
+                    <Text style={{ fontWeight: 'normal' }}>Transaction</Text>
+                  </Button>
+                </Row>
+                {this.renderToday()}
               </View>
             </ScrollView>
           )}
