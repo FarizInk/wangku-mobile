@@ -97,7 +97,7 @@ export default class IndexGroupScreen extends Component {
             </Button>
           ),
           headerRight: (
-            <Button styleName="clear" onPress={ () => { navigation.navigate("AddGroupTransactionScreen",
+            <Button styleName="clear" onPress={ () => { navigation.navigate("SearchGroupScreen",
               { gid: params.id }) } }>
               <Icon name="search" style={{ color: "#FFDE03" }} />
             </Button>
