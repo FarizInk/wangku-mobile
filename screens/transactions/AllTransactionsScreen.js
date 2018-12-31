@@ -6,7 +6,9 @@ import {
   ScrollView,
   AsyncStorage,
   RefreshControl,
-  ActivityIndicator
+  ActivityIndicator,
+  FlatList,
+  ToastAndroid
 } from 'react-native';
 import {
   Button,
@@ -65,7 +67,7 @@ export default class AllTransactionsScreen extends Component {
   static navigationOptions = {
     title: 'All Transactions',
   }
-  state = { transactions: [], token: '', refreshing: false, isLoading: true }
+  state = { transactions: [], token: '', refreshing: false, isLoading: true, page: 1, data: [] }
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
@@ -83,9 +85,18 @@ export default class AllTransactionsScreen extends Component {
       }
     }
 
-    axios.get('http://wangku.herokuapp.com/api/transactions/user', config)
-      .then(response => this.setState({ transactions: response.data.data, isLoading: false }))
+    await axios.get('http://wangku.herokuapp.com/api/transactions/user?page=' + this.state.page, config)
+      .then(response => this.setState({ transactions: [...this.state.transactions, ...response.data.data], isLoading: false, data: response.data.data }))
       .catch(error => console.log(error.response.data));
+
+    console.log(this.state.page);
+
+    if (this.state.data == "") {
+      ToastAndroid.show("No More Transactions", ToastAndroid.SHORT);
+      this.setState({
+        page: "no content"
+      });
+    }
   }
 
   async componentWillMount() {
@@ -110,6 +121,17 @@ export default class AllTransactionsScreen extends Component {
   	return prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
   }
 
+  loadMore = async() => {
+    if (this.state.page != "no content") {
+      ToastAndroid.show("Load More Transactions.", ToastAndroid.SHORT);
+      await this.setState({
+        page: this.state.page + 1
+      }, () => this.getTransactions());
+    } else {
+      console.log("no more transactions");
+    }
+  }
+
   renderTransactions() {
     if (this.state.transactions == "") {
       return (
@@ -117,35 +139,52 @@ export default class AllTransactionsScreen extends Component {
       );
     } else {
       var savedate = null;
-      return this.state.transactions.map(transaction =>
-        <View key={ transaction.id }>
-          {
-            (savedate != transaction.date_human) ? (
-              <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginVertical: 5 }}>
-                <Text>{ savedate = transaction.date_human }</Text>
+      return (
+          <FlatList
+            data={this.state.transactions}
+            ListFooterComponent={ () =>
+              <View>
+                {
+                  (this.state.data == "") ? (
+                    null
+                  ) : (<Button styleName="full-width" onPress={ () => this.loadMore() }>
+                    <Text>LOAD MORE</Text>
+                  </Button>)
+                }
+              </View>
+            }
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) =>
+            <View>
+              {
+                (savedate != item.date_human) ? (
+                  <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginVertical: 5 }}>
+                    <Text>{ savedate = item.date_human }</Text>
+                  </Row>
+                ) : null
+              }
+              <Row styleName="container">
+                <View styleName="vertical space-between content">
+                  <TouchableOpacity
+                    onPress={() => this.props.navigation.navigate('DetailTransaction',
+                      { id: item.id, getTransactions: this._onRefresh.bind(this) }
+                    )}
+                  >
+                    <Subtitle>{ item.description }</Subtitle>
+                  </TouchableOpacity>
+                  <Caption>{ item.created }</Caption>
+                </View>
+                <View styleName="vertical space-between">
+                  { (item.status == "plus") ? (
+                    <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(item.amount) }</Caption>
+                  ) : (
+                    <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(item.amount) }</Caption>
+                  ) }
+                </View>
               </Row>
-            ) : null
+            </View>
           }
-          <Row styleName="container">
-            <View styleName="vertical space-between content">
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('DetailTransaction',
-                  { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
-                )}
-              >
-                <Subtitle>{ transaction.description }</Subtitle>
-              </TouchableOpacity>
-              <Caption>{ transaction.created }</Caption>
-            </View>
-            <View styleName="vertical space-between">
-              { (transaction.status == "plus") ? (
-                <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(transaction.amount) }</Caption>
-              ) : (
-                <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(transaction.amount) }</Caption>
-              ) }
-            </View>
-          </Row>
-        </View>
+            />
       );
     }
   }
@@ -170,19 +209,9 @@ export default class AllTransactionsScreen extends Component {
               />
             </ViewReact>
           ) : (
-            <ScrollView
-            style={{ flex: 1 }}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._onRefresh}
-              />
-            }
-            >
-              <View styleName="vertical" style={{ marginTop: 12, marginBottom: 12 }}>
+              <View styleName="vertical">
                 {this.renderTransactions()}
               </View>
-            </ScrollView>
           )}
         </ViewReact>
       </StyleProvider>
