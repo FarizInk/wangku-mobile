@@ -195,12 +195,7 @@ export default class AboutGroupScreen extends Component {
                   <Icon style={{ color: '#311B92' }} name="plus-button" />
                   <Text style={{ color: '#311B92', fontWeight: 'normal' }}>Member</Text>
                 </Button>
-              ) : (
-                <Button styleName="secondary" onPress={this.logout} style={{ marginTop: 25, backgroundColor: '#D32F2F', borderWidth: 0 }}>
-                  <Icon name="exit-to-app" />
-                  <Text style={{ fontWeight: 'normal' }}>Leave Group</Text>
-                </Button>
-              )
+              ) : null
             }
           </View>
 

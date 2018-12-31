@@ -57,8 +57,7 @@ export default class GroupScreen extends Component {
     const apiToken = await AsyncStorage.getItem('apiToken')
     const id = await AsyncStorage.getItem('id')
 
-    this.setState({token: apiToken})
-    this.setState({userid: id})
+    this.setState({ token: apiToken, userid: id})
   }
 
   async getGroups() {
@@ -108,17 +107,13 @@ export default class GroupScreen extends Component {
             </TouchableOpacity>
             <Caption>{ group.description }</Caption>
           </View>
-          {
-            (this.state.userid == group.owner) ? (
-              <Button
-                styleName="right-icon"
-                onPress={() => this.props.navigation.navigate('UpdateGroupScreen',
-                  { id: group.id, getGroups: this._onRefresh.bind(this) }
-                )}>
-                <Icon name="settings" style={{ color: '#311B92' }} />
-              </Button>
-            ) : null
-          }
+          <Button
+            styleName="right-icon"
+            onPress={() => this.props.navigation.navigate('UpdateGroupScreen',
+              { id: group.id, getGroups: this._onRefresh.bind(this) }
+            )}>
+            <Icon name="settings" style={{ color: '#311B92' }} />
+          </Button>
         </Row>
       );
     }

@@ -99,8 +99,9 @@ export default class AddGroupScreen extends Component {
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
+    const id = await AsyncStorage.getItem('id')
     const { params } = this.props.navigation.state;
-    this.setState({ token: apiToken, id: params.id })
+    this.setState({ token: apiToken, id: params.id, userid: id })
   }
 
   async onButtonPress() {
@@ -204,6 +205,7 @@ export default class AddGroupScreen extends Component {
         balance: response.data.data.balance,
         oldRegion: response.data.data.region,
         photo: response.data.data.photo,
+        owner: response.data.data.owner,
         isLoading: false
       }))
       .catch(error => console.log(error.response.data));
@@ -252,6 +254,33 @@ export default class AddGroupScreen extends Component {
     }
   }
 
+  async leave() {
+    var config = {
+        headers: {
+          'Accept': "application/json",
+          'Content-Type' : "application/json",
+          'Authorization' : "Bearer " + this.state.token,
+        }
+    };
+    await axios.get('http://wangku.herokuapp.com/api/search/user/' + this.state.userid, config)
+      .then(response => this.setState({
+        usermail: response.data.email
+      }))
+      .catch(error => console.log(error.response.data));
+    await axios.post('http://wangku.herokuapp.com/api/group/' + this.state.id + '/leave', {
+      email: this.state.usermail
+    }, config)
+      .then(response => this.setState({
+        message: response.data.message
+      }))
+      .catch(error => console.log(error.response.data));
+
+    if (this.state.message !== undefined) {
+      (this.state.message != null) ? ToastAndroid.show(this.state.message, ToastAndroid.SHORT) : '';
+      this.props.navigation.goBack();
+    }
+  }
+
   componentWillUnmount() {
     const {params} = this.props.navigation.state;
     // console.warn(params.refresh);
@@ -294,56 +323,68 @@ export default class AddGroupScreen extends Component {
       <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
         <TouchableWithoutFeedback onPress={ () => { DismissKeyboard() } }>
           <View styleName="vertical h-center content" style={{ marginBottom: 20 }}>
-            <Row styleName="container" style={{ backgroundColor: 'transparent' }}>
-              <Image
-                style={{ borderWidth: 10, borderColor: 'white', width: 150, height: 150, borderRadius: 99, marginLeft: 20 }}
-                source={{ uri: photo }}
-              />
-              <View styleName="horizontal" style={{ marginLeft: 10 }}>
-                <Button styleName="secondary register" onPress={ this._pickImage }>
-                  <Text style={{ fontWeight: '100' }}>Change Photo</Text>
-                </Button>
-              </View>
-            </Row>
-            <Subtitle styleName="label">Name</Subtitle>
-            <TextInput
-              placeholder={'Enter Group Name here...'}
-              styleName="textInput"
-              value={this.state.name}
-              onChangeText={ name => this.setState({ name }) }
-            />
-            <Subtitle styleName="label">Description</Subtitle>
-            <TextInput
-              placeholder={'Enter Group Description here...'}
-              styleName="textInput"
-              value={this.state.description}
-              onChangeText={ description => this.setState({ description }) }
-            />
-            <Subtitle styleName="label">Balance</Subtitle>
-            <TextInput
-              placeholder={'Enter Group Balance here...'}
-              styleName="textInput"
-              keyboardType="numeric"
-              value={`${this.state.balance}`}
-              onChangeText={ balance => this.formatRupiah(balance) }
-            />
-            <Subtitle styleName="label">Region</Subtitle>
-            <View styleName="selectDropdown">
-              <DropDownMenu
-                styleName="horizontal"
-                options={this.state.optionRegion}
-                selectedOption={selectedRegion ? selectedRegion : this.state.optionRegion[0]}
-                onOptionSelected={(region) => this.setState({ selectedRegion: region })}
-                titleProperty="name"
-                valueProperty="optionRegion.value"
-              />
-            </View>
-            <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
-              <Text>Update</Text>
-            </Button>
-            <Button styleName="secondary delete" onPress={this.delete.bind(this)}>
-              <Text>Delete Group</Text>
-            </Button>
+            {
+              (this.state.owner == this.state.userid) ? (
+                <View>
+                  <Row styleName="container" style={{ backgroundColor: 'transparent' }}>
+                    <Image
+                      style={{ borderWidth: 10, borderColor: 'white', width: 150, height: 150, borderRadius: 99, marginLeft: 20 }}
+                      source={{ uri: photo }}
+                    />
+                    <View styleName="horizontal" style={{ marginLeft: 10 }}>
+                      <Button styleName="secondary register" onPress={ this._pickImage }>
+                        <Text style={{ fontWeight: '100' }}>Change Photo</Text>
+                      </Button>
+                    </View>
+                  </Row>
+                  <Subtitle styleName="label">Name</Subtitle>
+                  <TextInput
+                    placeholder={'Enter Group Name here...'}
+                    styleName="textInput"
+                    value={this.state.name}
+                    onChangeText={ name => this.setState({ name }) }
+                  />
+                  <Subtitle styleName="label">Description</Subtitle>
+                  <TextInput
+                    placeholder={'Enter Group Description here...'}
+                    styleName="textInput"
+                    value={this.state.description}
+                    onChangeText={ description => this.setState({ description }) }
+                  />
+                  <Subtitle styleName="label">Balance</Subtitle>
+                  <TextInput
+                    placeholder={'Enter Group Balance here...'}
+                    styleName="textInput"
+                    keyboardType="numeric"
+                    value={`${this.state.balance}`}
+                    onChangeText={ balance => this.formatRupiah(balance) }
+                  />
+                  <Subtitle styleName="label">Region</Subtitle>
+                  <View styleName="selectDropdown">
+                    <DropDownMenu
+                      styleName="horizontal"
+                      options={this.state.optionRegion}
+                      selectedOption={selectedRegion ? selectedRegion : this.state.optionRegion[0]}
+                      onOptionSelected={(region) => this.setState({ selectedRegion: region })}
+                      titleProperty="name"
+                      valueProperty="optionRegion.value"
+                    />
+                  </View>
+                  <Button styleName="secondary register" onPress={this.onButtonPress.bind(this)}>
+                    <Text>Update</Text>
+                  </Button>
+                  <Button styleName="secondary delete" onPress={this.delete.bind(this)}>
+                    <Text>Delete Group</Text>
+                  </Button>
+                </View>
+              ) : (
+                <View>
+                  <Button styleName="secondary delete" onPress={this.leave.bind(this)}>
+                    <Text>Leave Group</Text>
+                  </Button>
+                </View>
+              )
+            }
           </View>
         </TouchableWithoutFeedback>
       </ScrollView>
