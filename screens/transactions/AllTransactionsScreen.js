@@ -116,8 +116,17 @@ export default class AllTransactionsScreen extends Component {
         <Text style={{ textAlign: 'center'}}>You Have No Transaction Today.</Text>
       );
     } else {
+      var savedate = null;
       return this.state.transactions.map(transaction =>
-          <Row styleName="container" key={ transaction.id }>
+        <View key={ transaction.id }>
+          {
+            (savedate != transaction.date_human) ? (
+              <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginVertical: 5 }}>
+                <Text>{ savedate = transaction.date_human }</Text>
+              </Row>
+            ) : null
+          }
+          <Row styleName="container">
             <View styleName="vertical space-between content">
               <TouchableOpacity
                 onPress={() => this.props.navigation.navigate('DetailTransaction',
@@ -126,7 +135,7 @@ export default class AllTransactionsScreen extends Component {
               >
                 <Subtitle>{ transaction.description }</Subtitle>
               </TouchableOpacity>
-              <Caption>{ transaction.date_human }</Caption>
+              <Caption>{ transaction.created }</Caption>
             </View>
             <View styleName="vertical space-between">
               { (transaction.status == "plus") ? (
@@ -136,6 +145,7 @@ export default class AllTransactionsScreen extends Component {
               ) }
             </View>
           </Row>
+        </View>
       );
     }
   }
