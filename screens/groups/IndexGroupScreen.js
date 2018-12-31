@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import {
   View as ViewReact,
   StyleSheet,
-  AsyncStorage
+  AsyncStorage,
+  ActivityIndicator
 } from 'react-native';
 import {
   Text,
@@ -105,9 +106,13 @@ export default class IndexGroupScreen extends Component {
   };
 
   async componentWillMount() {
+    this.setState({
+      isLoading: true
+    });
     const { params } = await this.props.navigation.state;
     await this.setState({ groupId: params.id })
     await AsyncStorage.setItem('groupId', this.state.groupId.toString())
+    setTimeout(() => {this.setState({isLoading: false})}, 2000)
   }
 
   componentWillUnmount() {
@@ -116,8 +121,29 @@ export default class IndexGroupScreen extends Component {
 
   render() {
     return (
-      <GroupStackNavigator />
+      <ViewReact style={{ flex: 1, backgroundColor: '#E8EAF6' }}>
+        {this.state.isLoading ? (
+          <ViewReact style={styles.container}>
+            <ActivityIndicator
+              animating
+              size="large"
+              style={styles.activityIndicator}
+            />
+          </ViewReact>
+        ) : (
+          <GroupStackNavigator />
+        )}
+      </ViewReact>
     );
   }
 
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#E8EAF6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

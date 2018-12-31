@@ -94,9 +94,31 @@ export default class TransactionsGroupScreen extends Component {
   	return prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
   }
 
+  renderDate(date) {
+    if (date != savedate) {
+      savedate = date;
+      return (
+        <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginBottom: 5 }}>
+          <Text>{ savedate }</Text>
+        </Row>
+      )
+    } else {
+      return null
+    }
+  }
+
   renderTransactions() {
+    var savedate = null;
     return this.state.transactions.map(transaction =>
-        <Row styleName="container" key={ transaction.id }>
+      <View key={ transaction.id }>
+        {
+          (savedate != transaction.date_human) ? (
+            <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginVertical: 5 }}>
+              <Text>{ savedate = transaction.date_human }</Text>
+            </Row>
+          ) : null
+        }
+        <Row styleName="container">
           <View styleName="vertical space-between content">
             <TouchableOpacity
               onPress={() => this.props.navigation.navigate('DetailTransaction',
@@ -105,51 +127,58 @@ export default class TransactionsGroupScreen extends Component {
             >
               <Subtitle>{ transaction.description }</Subtitle>
             </TouchableOpacity>
-            <Caption>{ transaction.created }</Caption>
+            <Row styleName="small" style={{ height: 30, paddingLeft: 0, marginBottom: 0 }}>
+              {
+                (transaction.photo == null) ? (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/profile/' + transaction.photo }} />)
+              }
+            <Text>{ transaction.name }</Text>
+            </Row>
           </View>
-          <View styleName="vertical space-between">
+          <View styleName="vertical space-between content">
             { (transaction.status == "plus") ? (
               <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(transaction.amount) }</Caption>
             ) : (
               <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(transaction.amount) }</Caption>
             ) }
+            <Caption style={{ textAlign: 'right' }}>{ transaction.created }</Caption>
           </View>
         </Row>
+      </View>
     );
   }
 
   renderToday() {
-    if (this.state.transactions == "") {
+    if (this.state.today == "" || this.state.today == undefined) {
       return (
         <Text style={{ textAlign: 'center'}}>You Have No Transaction Today.</Text>
       );
     } else {
-      return this.state.transactions.map(transaction =>
-          <Row styleName="container" key={ transaction.id }>
-            <View styleName="vertical space-between content">
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('DetailTransaction',
-                  { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
-                )}
-              >
-                <Subtitle>{ transaction.description }</Subtitle>
-              </TouchableOpacity>
-              <Row styleName="small" style={{ height: 30, paddingLeft: 0, marginBottom: 0 }}>
-                {
-                  (transaction.photo == null) ? (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/profile/' + transaction.photo }} />)
-                }
-              <Text>{ transaction.name }</Text>
-              </Row>
-            </View>
-            <View styleName="vertical space-between content">
-              { (transaction.status == "plus") ? (
-                <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(transaction.amount) }</Caption>
-              ) : (
-                <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(transaction.amount) }</Caption>
-              ) }
-              <Caption style={{ textAlign: 'right' }}>{ transaction.created }</Caption>
-            </View>
-          </Row>
+      return this.state.today.map(data =>
+        <Row styleName="container" key={ data.id }>
+          <View styleName="vertical space-between content">
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('DetailTransaction',
+                { id: data.id, getTransactions: this._onRefresh.bind(this) }
+              )}
+            >
+              <Subtitle>{ data.description }</Subtitle>
+            </TouchableOpacity>
+            <Row styleName="small" style={{ height: 30, paddingLeft: 0, marginBottom: 0 }}>
+              {
+                (data.photo == null) ? (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/profile/' + data.photo }} />)
+              }
+            <Text>{ data.name }</Text>
+            </Row>
+          </View>
+          <View styleName="vertical space-between content">
+            { (data.status == "plus") ? (
+              <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(data.amount) }</Caption>
+            ) : (
+              <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(data.amount) }</Caption>
+            ) }
+            <Caption style={{ textAlign: 'right' }}>{ data.created }</Caption>
+          </View>
+        </Row>
       );
     }
   }
@@ -196,6 +225,7 @@ export default class TransactionsGroupScreen extends Component {
                   </Button>
                 </Row>
                 {this.renderToday()}
+                {this.renderTransactions()}
               </View>
             </ScrollView>
           )}
