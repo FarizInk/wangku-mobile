@@ -7,7 +7,9 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity
+  TouchableOpacity,
+  FlatList,
+  ToastAndroid
 } from 'react-native';
 import {
   Button,
@@ -44,7 +46,7 @@ let theme = _.merge(getTheme(), {
 
 
 export default class TransactionsGroupScreen extends Component {
-  state = { transactions: [], token: '', groupId: '', refreshing: false, isLoading: true }
+  state = { transactions: [], token: '', groupId: '', refreshing: false, isLoading: true, page: 1, data: [] }
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
@@ -53,7 +55,7 @@ export default class TransactionsGroupScreen extends Component {
     this.setState({ token: apiToken, groupId: groupId })
   }
 
-  async getTransactions() {
+  async getToday() {
     await this.loadApp()
     var config = {
       headers: {
@@ -66,14 +68,34 @@ export default class TransactionsGroupScreen extends Component {
     axios.get('http://wangku.herokuapp.com/api/transactions/today/group/' + this.state.groupId, config)
       .then(response => this.setState({ today: response.data.data }))
       .catch(error => console.log(error.response.data));
+  }
 
-    axios.get('http://wangku.herokuapp.com/api/transactions/group/' + this.state.groupId, config)
-      .then(response => this.setState({ transactions: response.data.data, isLoading: false }))
+  async getTransactions() {
+    await this.loadApp()
+    var config = {
+      headers: {
+        'Accept': "application/json",
+        'Content-Type': "application/json",
+        'Authorization': "Bearer " + this.state.token
+      }
+    }
+
+    await axios.get('http://wangku.herokuapp.com/api/transactions/group/' + this.state.groupId + '?page=' + this.state.page , config)
+      .then(response => this.setState({ transactions: [...this.state.transactions, ...response.data.data], isLoading: false, data: response.data.data }))
       .catch(error => console.log(error.response.data));
+
+    if (this.state.data == "") {
+      ToastAndroid.show("No More Transactions", ToastAndroid.SHORT);
+      this.setState({
+        page: "no content",
+        data: []
+      });
+    }
   }
 
   async componentWillMount() {
     this.setState({ isLoading: true })
+    await this.getToday();
     await this.getTransactions();
   }
 
@@ -94,56 +116,75 @@ export default class TransactionsGroupScreen extends Component {
   	return prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
   }
 
-  renderDate(date) {
-    if (date != savedate) {
-      savedate = date;
-      return (
-        <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginBottom: 5 }}>
-          <Text>{ savedate }</Text>
-        </Row>
-      )
+  loadMore = async() => {
+    if (this.state.page != "no content") {
+      ToastAndroid.show("Load More Transactions.", ToastAndroid.SHORT);
+      await this.setState({
+        page: this.state.page + 1
+      }, () => this.getTransactions());
+      console.log(this.state.data);
     } else {
-      return null
+      console.log(this.state.data);
+      console.log("no more transactions");
+      console.log(this.state.page);
     }
   }
 
   renderTransactions() {
     var savedate = null;
-    return this.state.transactions.map(transaction =>
-      <View key={ transaction.id }>
-        {
-          (savedate != transaction.date_human) ? (
-            <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginVertical: 5 }}>
-              <Text>{ savedate = transaction.date_human }</Text>
-            </Row>
-          ) : null
-        }
-        <Row styleName="container">
-          <View styleName="vertical space-between content">
-            <TouchableOpacity
-              onPress={() => this.props.navigation.navigate('DetailTransaction',
-                { id: transaction.id, getTransactions: this._onRefresh.bind(this) }
-              )}
-            >
-              <Subtitle>{ transaction.description }</Subtitle>
-            </TouchableOpacity>
-            <Row styleName="small" style={{ height: 30, paddingLeft: 0, marginBottom: 0 }}>
+    return (
+        <FlatList
+          style={{ backgroundColor: 'transparent' }}
+          data={this.state.transactions}
+          ListFooterComponent={ () =>
+            <View>
               {
-                (transaction.photo == null) ? (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/profile/' + transaction.photo }} />)
+                (this.state.data == "") ? (
+                  null
+                ) : (<Button styleName="full-width" onPress={ () => this.loadMore() }>
+                  <Text>LOAD MORE</Text>
+                </Button>)
               }
-            <Text>{ transaction.name }</Text>
+            </View>
+          }
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) =>
+          <View>
+            {
+              (savedate != item.date_human) ? (
+                <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginVertical: 5 }}>
+                  <Text>{ savedate = item.date_human }</Text>
+                </Row>
+              ) : null
+            }
+            <Row styleName="container">
+              <View styleName="vertical space-between content">
+                <TouchableOpacity
+                  onPress={() => this.props.navigation.navigate('DetailTransactionScreen',
+                    { id: item.id, getTransactions: this.noAction.bind(this) }
+                  )}
+                >
+                  <Subtitle>{ item.description }</Subtitle>
+                </TouchableOpacity>
+                <Row styleName="small" style={{ height: 30, paddingLeft: 0, marginBottom: 0 }}>
+                  {
+                    (item.photo == null) ? (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/profile/' + item.photo }} />)
+                  }
+                <Text>{ item.name }</Text>
+                </Row>
+              </View>
+              <View styleName="vertical space-between">
+                { (item.status == "plus") ? (
+                  <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(item.amount) }</Caption>
+                ) : (
+                  <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(item.amount) }</Caption>
+                ) }
+                <Caption style={{ textAlign: 'right' }}>{ item.created }</Caption>
+              </View>
             </Row>
           </View>
-          <View styleName="vertical space-between content">
-            { (transaction.status == "plus") ? (
-              <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(transaction.amount) }</Caption>
-            ) : (
-              <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(transaction.amount) }</Caption>
-            ) }
-            <Caption style={{ textAlign: 'right' }}>{ transaction.created }</Caption>
-          </View>
-        </Row>
-      </View>
+        }
+          />
     );
   }
 
@@ -154,40 +195,54 @@ export default class TransactionsGroupScreen extends Component {
       );
     } else {
       return this.state.today.map(data =>
-        <Row styleName="container" key={ data.id }>
-          <View styleName="vertical space-between content">
-            <TouchableOpacity
-              onPress={() => this.props.navigation.navigate('DetailTransaction',
-                { id: data.id, getTransactions: this._onRefresh.bind(this) }
-              )}
-            >
-              <Subtitle>{ data.description }</Subtitle>
-            </TouchableOpacity>
-            <Row styleName="small" style={{ height: 30, paddingLeft: 0, marginBottom: 0 }}>
-              {
-                (data.photo == null) ? (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/profile/' + data.photo }} />)
-              }
-            <Text>{ data.name }</Text>
-            </Row>
-          </View>
-          <View styleName="vertical space-between content">
-            { (data.status == "plus") ? (
-              <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(data.amount) }</Caption>
-            ) : (
-              <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(data.amount) }</Caption>
-            ) }
-            <Caption style={{ textAlign: 'right' }}>{ data.created }</Caption>
-          </View>
-        </Row>
+        <View key={ data.id }>
+          <Row styleName="container">
+            <View styleName="vertical space-between content">
+              <TouchableOpacity
+                onPress={() => this.props.navigation.navigate('DetailTransactionScreen',
+                  { id: data.id, getTransactions: this._onUpdate.bind(this) }
+                )}
+              >
+                <Subtitle>{ data.description }</Subtitle>
+              </TouchableOpacity>
+              <Row styleName="small" style={{ height: 30, paddingLeft: 0, marginBottom: 0 }}>
+                {
+                  (data.photo == null) ? (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/profile/' + data.photo }} />)
+                }
+              <Text>{ data.name }</Text>
+              </Row>
+            </View>
+            <View styleName="vertical space-between content">
+              { (data.status == "plus") ? (
+                <Caption style={{ textAlign: 'right', color: 'green' }}>{ "+ Rp " + this.formatRupiah(data.amount) }</Caption>
+              ) : (
+                <Caption style={{ textAlign: 'right', color: 'red' }}>{ "- Rp " + this.formatRupiah(data.amount) }</Caption>
+              ) }
+              <Caption style={{ textAlign: 'right' }}>{ data.created }</Caption>
+            </View>
+          </Row>
+        </View>
       );
     }
   }
 
   _onRefresh = () => {
     this.setState({refreshing: true});
+    this.getToday();
     this.getTransactions().then(() => {
       this.setState({refreshing: false});
     });
+  }
+
+  _onUpdate = () => {
+    this.setState({refreshing: true});
+    this.getToday().then(() => {
+      this.setState({refreshing: false});
+    });
+  }
+
+  noAction = () => {
+    console.log("no action");
   }
 
   render() {
@@ -212,18 +267,20 @@ export default class TransactionsGroupScreen extends Component {
               />
             }
             >
-              <View styleName="vertical" style={{ marginTop: 12, marginBottom: 12 }}>
-                <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginBottom: 5 }}>
-                  <Text>Today</Text>
-                  <Button
-                    onPress={() => this.props.navigation.navigate('AddGroupTransactionScreen',
-                      { getTransactions: this._onRefresh.bind(this) }
-                    )}
-                    >
-                    <Icon name="plus-button" />
-                    <Text style={{ fontWeight: 'normal' }}>Transaction</Text>
-                  </Button>
-                </Row>
+              <View styleName="vertical" style={{ marginTop: 12 }}>
+                <View>
+                  <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginBottom: 5 }}>
+                    <Text>Today</Text>
+                    <Button
+                      onPress={() => this.props.navigation.navigate('AddGroupTransactionScreen',
+                        { getTransactions: this._onUpdate.bind(this) }
+                      )}
+                      >
+                      <Icon name="plus-button" />
+                      <Text style={{ fontWeight: 'normal' }}>Transaction</Text>
+                    </Button>
+                  </Row>
+                </View>
                 {this.renderToday()}
                 {this.renderTransactions()}
               </View>

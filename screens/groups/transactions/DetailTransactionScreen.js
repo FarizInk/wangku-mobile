@@ -18,6 +18,8 @@ import {
   Tile,
   Subtitle,
   ImageBackground,
+  Row,
+  Image
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
@@ -34,7 +36,7 @@ let theme = _.merge(getTheme(), {
     '.card': {
       borderRadius: 5,
       margin: 12,
-      height: 200
+      padding: 20
     },
     '.plus': {
       backgroundColor: "green"
@@ -45,8 +47,9 @@ let theme = _.merge(getTheme(), {
   }
 });
 
-export default class AddTransactionScreen extends Component {
+export default class DetailTransactionScreen extends Component {
   static navigationOptions = {
+    header: null,
     title: 'Detail Transaction',
   }
 
@@ -54,8 +57,10 @@ export default class AddTransactionScreen extends Component {
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
+    const id = await AsyncStorage.getItem('id')
+    const groupId = await AsyncStorage.getItem('groupId')
     const { params } = this.props.navigation.state;
-    this.setState({ token: apiToken, id: params.id })
+    this.setState({ token: apiToken, id: params.id, groupId: groupId, userid: id })
   }
 
   async getTransactions() {
@@ -68,16 +73,29 @@ export default class AddTransactionScreen extends Component {
       }
     }
 
-    axios.get('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, config)
+    axios.get('http://wangku.herokuapp.com/api/transaction/group/' + this.state.groupId + '/' + this.state.id, config)
       .then(response => this.setState({
         status: response.data.data.status,
         amount: response.data.data.amount,
         description: response.data.data.description,
-        date: response.data.data.date,
+        date: response.data.data.date_human,
+        date_create: response.data.data.date,
         time: response.data.data.time,
-        isLoading: false
+        name: response.data.data.name,
+        photo: response.data.data.photo,
+        created: response.data.data.created_by
       }))
       .catch(error => console.log(error.response.data));
+    await axios.get('http://wangku.herokuapp.com/api/datenow/', config)
+      .then(response => this.setState({
+        datenow: response.data.datenow
+      }));
+    if (this.state.date_create == this.state.datenow) {
+      this.setState({ isChange: true, isLoading: false });
+    } else {
+      this.setState({ isChange: false, isLoading: false });
+    }
+    console.log(this.state.isChange);
   }
 
   async componentWillMount() {
@@ -112,31 +130,47 @@ export default class AddTransactionScreen extends Component {
   renderTransaction() {
     return (
       <ViewReact style={{ flex: 1, backgroundColor: 'white' }}>
-          <View styleName={ (this.state.status == "plus") ? "vertical h-center v-center card plus" : "vertical h-center v-center card minus" }>
+          <View styleName={ (this.state.status == "plus") ? "vertical h-center card plus" : "vertical h-center v-center card minus" }>
+            <Row styleName="small" style={{ height: 30, paddingLeft: 0, marginBottom: 10, backgroundColor: 'transparent' }}>
+              {
+                (this.state.photo == null) ? (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/img/avatar/default.jpg' }} />) : (<Image styleName="small-avatar" style={{ marginRight: 4 }} source={{ uri: 'http://wangku.herokuapp.com/images/profile/' + this.state.photo }} />)
+              }
+            <Text style={{ color: 'white' }} >{ this.state.name }</Text>
+            </Row>
             <Text style={{ color: 'white', fontSize: 25 }}>{ (this.state.status == "plus") ? ("+ Rp " + this.formatRupiah(this.state.amount.toString())) : ("- Rp " + this.formatRupiah(this.state.amount.toString())) }</Text>
             <Text style={{ color: '#eee', fontSize: 16, marginTop: 12 }}>{ this.state.description }</Text>
           </View>
           <View styleName="horizontal h-center" style={{ marginBottom: 15 }}>
             <Text>{ this.state.date + " · " + this.state.time }</Text>
           </View>
-          <View styleName="horizontal h-center">
-            <Button
-              styleName="secondary"
-              style={{ backgroundColor: '#311B92', borderWidth: 0 }}
-              onPress={() => this.props.navigation.navigate('EditTransaction',
-                { id: this.state.id, getTransactions: this.componentWillMount.bind(this) }
-              )}
-            >
-              <Icon name="edit" />
-              <Text>EDIT</Text>
-            </Button>
-            <Button
-              styleName="secondary"
-              style={{ backgroundColor: '#D32F2F', borderWidth: 0, marginLeft: 12 }}
-              onPress={() => this.deleteTransaction()}
-            >
-              <Icon name="close" />
-              <Text>DELETE</Text>
+          {
+            (this.state.created == this.state.userid && this.state.isChange == true) ? (
+              <View styleName="horizontal h-center">
+                <Button
+                  styleName="secondary"
+                  style={{ backgroundColor: '#311B92', borderWidth: 0 }}
+                  onPress={() => this.props.navigation.navigate('EditTransactionScreen',
+                    { id: this.state.id, getTransactions: this.componentWillMount.bind(this) }
+                  )}
+                >
+                  <Icon name="edit" />
+                  <Text>EDIT</Text>
+                </Button>
+                <Button
+                  styleName="secondary"
+                  style={{ backgroundColor: '#D32F2F', borderWidth: 0, marginLeft: 12 }}
+                  onPress={() => this.deleteTransaction()}
+                >
+                  <Icon name="close" />
+                  <Text>DELETE</Text>
+                </Button>
+              </View>
+            ) : null
+          }
+          <View styleName="horizontal h-center" style={{ marginTop: 10 }}>
+            <Button styleName="confirmation" onPress={ () => { this.props.navigation.goBack() } }>
+              <Icon name="back" />
+              <Text>Back</Text>
             </Button>
           </View>
       </ViewReact>
@@ -151,7 +185,7 @@ export default class AddTransactionScreen extends Component {
       }
     }
 
-    axios.delete('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, config)
+    axios.delete('http://wangku.herokuapp.com/api/transaction/group/' + this.state.groupId + '/' + this.state.id, config)
       .then(response => ToastAndroid.show("Successfully delete " + response.data.data.description, ToastAndroid.SHORT))
       .catch(error => console.log(error.response));
 

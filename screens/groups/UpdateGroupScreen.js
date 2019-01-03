@@ -325,17 +325,15 @@ export default class AddGroupScreen extends Component {
           <View styleName="vertical h-center content" style={{ marginBottom: 20 }}>
             {
               (this.state.owner == this.state.userid) ? (
-                <View>
+                <View styleName="vertical h-center content" style={{ marginBottom: 20 }}>
                   <Row styleName="container" style={{ backgroundColor: 'transparent' }}>
                     <Image
-                      style={{ borderWidth: 10, borderColor: 'white', width: 150, height: 150, borderRadius: 99, marginLeft: 20 }}
+                      style={{ borderWidth: 0, borderColor: 'white', width: 140, height: 140, borderRadius: 99, marginLeft: 20 }}
                       source={{ uri: photo }}
                     />
-                    <View styleName="horizontal" style={{ marginLeft: 10 }}>
                       <Button styleName="secondary register" onPress={ this._pickImage }>
                         <Text style={{ fontWeight: '100' }}>Change Photo</Text>
                       </Button>
-                    </View>
                   </Row>
                   <Subtitle styleName="label">Name</Subtitle>
                   <TextInput

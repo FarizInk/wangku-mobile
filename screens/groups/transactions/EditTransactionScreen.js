@@ -61,7 +61,7 @@ let theme = _.merge(getTheme(), {
 
 var DismissKeyboard = require('dismissKeyboard');
 
-export default class AddTransactionScreen extends Component {
+export default class EditTransactionScreen extends Component {
   static navigationOptions = {
     title: 'Update Transaction',
   }
@@ -89,8 +89,12 @@ export default class AddTransactionScreen extends Component {
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
+    const groupId = await AsyncStorage.getItem('groupId')
     const { params } = this.props.navigation.state;
-    this.setState({ token: apiToken, id: params.id })
+    this.setState({ token: apiToken, id: params.id, groupId: groupId })
+    console.log(this.state.token);
+    console.log(this.state.groupId);
+    console.log(this.state.id);
   }
 
   async onButtonPress() {
@@ -105,7 +109,7 @@ export default class AddTransactionScreen extends Component {
     };
 
     if (this.checkInput(selectedStatus, amount)) {
-      await axios.put('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, {
+      await axios.put('http://wangku.herokuapp.com/api/transaction/group/' + this.state.groupId + '/' + this.state.id, {
         status: selectedStatus.value,
         amount: amount.replace(/[^,\d]/g, ""),
         description: description
@@ -157,7 +161,7 @@ export default class AddTransactionScreen extends Component {
       }
     }
 
-    await axios.get('http://wangku.herokuapp.com/api/transaction/user/' + this.state.id, config)
+    await axios.get('http://wangku.herokuapp.com/api/transaction/group/' + this.state.groupId + '/' + this.state.id, config)
       .then(response => this.setState({
         oldStatus: response.data.data.status,
         amount: response.data.data.amount,
