@@ -6,7 +6,8 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
-  RefreshControl
+  RefreshControl,
+  Dimensions
 } from 'react-native';
 import {
   Button,
@@ -19,10 +20,18 @@ import {
   Row,
   Subtitle,
   Caption,
+  Title,
 } from '@shoutem/ui';
 import { StyleProvider } from '@shoutem/theme';
 import _ from 'lodash';
 import axios from 'axios';
+import {
+  LineChart,
+  BarChart,
+  PieChart,
+  ProgressChart,
+  ContributionGraph
+} from 'react-native-chart-kit'
 
 let theme = _.merge(getTheme(), {
 
@@ -53,16 +62,26 @@ export default class HomeScreen extends Component {
       }
     }
 
-    await axios.get('http://wangku.herokuapp.com/api/profile', config)
+    await axios.get('http://wangku.herokuapp.com/api/home', config)
       .then(response => this.setState({
-        name: response.data.data.name,
-        balance: response.data.data.balance,
-        photo: response.data.meta.photo,
+        name: response.data.name,
+        balance: response.data.balance,
+        photo: response.data.photo,
+        total: response.data.transactions,
+        today: response.data.today,
+        day_income: response.data.day_income,
+        day_spending: response.data.day_spending,
         isLoading: false
       }))
       .catch(error => console.log(error.response.data));
     let balance = this.formatRupiah(this.state.balance);
     this.setState({ balance: balance });
+
+    await axios.get('http://wangku.herokuapp.com/api/datenow/', config)
+      .then(response => this.setState({
+        datenow: response.data.datenow
+      }))
+      .catch(error => console.log(error.response.data));
   }
 
   async componentWillMount() {
@@ -121,6 +140,69 @@ export default class HomeScreen extends Component {
               <Caption>Rp { this.formatRupiah(this.state.balance.toString()) }</Caption>
             </View>
           </Row>
+          <Row style={{ margin: 0, padding: 0, backgroundColor: 'transparent' }}>
+            <View styleName="vertical h-center v-center card" style={{ backgroundColor: '#647DEE', marginLeft: 20, marginRight: 10, paddingVertical: 10, borderRadius: 5, marginBottom: 10 }}>
+              <Text style={{ color: '#eee' }}>Total</Text>
+              <Title style={{ color: '#fff' }}>{ this.state.total }</Title>
+              <Subtitle style={{ color: '#fff' }}>Transactions</Subtitle>
+            </View>
+            <View styleName="vertical h-center v-center card" style={{ backgroundColor: '#7F53AC', marginLeft: 10, marginRight: 20, paddingVertical: 10, borderRadius: 5, marginBottom: 10 }}>
+              <Text style={{ color: '#eee' }}>Today</Text>
+              <Title style={{ color: '#fff' }}>{ this.state.today }</Title>
+              <Subtitle style={{ color: '#fff' }}>Transactions</Subtitle>
+            </View>
+          </Row>
+
+          <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginBottom: 5, marginTop: 10 }}>
+            <Subtitle>Today</Subtitle>
+            <Text style={{ textAlign: 'right' }}>{ this.state.datenow }</Text>
+          </Row>
+
+          <Row style={{ margin: 0, padding: 0, backgroundColor: 'transparent' }}>
+            <View styleName="vertical h-center v-center card" style={{ backgroundColor: '#fff', marginLeft: 20, marginRight: 10, paddingVertical: 10, borderRadius: 5, marginBottom: 10 }}>
+              <Text style={{ color: '#43A047'}}>Income</Text>
+              <Title style={{ color: '#2E7D32'}}>+ Rp { this.formatRupiah(this.state.day_income.toString()) }</Title>
+            </View>
+            <View styleName="vertical h-center v-center card" style={{ backgroundColor: '#fff', marginLeft: 10, marginRight: 20, paddingVertical: 10, borderRadius: 5, marginBottom: 10 }}>
+              <Text style={{ color: '#F44336'}}>Spending</Text>
+              <Title style={{ color: '#C62828'}}>- Rp { this.formatRupiah(this.state.day_spending.toString()) }</Title>
+            </View>
+          </Row>
+
+          <View>
+            <LineChart
+              data={{
+                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                datasets: [{
+                  data: [
+                    '+10.000',
+                    '+20.000',
+                    '+30.000',
+                    '-10.000',
+                    '-20.000',
+                    '-30.000'
+                  ]
+                }]
+              }}
+              width={Dimensions.get('window').width - 40} // from react-native
+              height={220}
+              chartConfig={{
+                backgroundColor: '#311B92',
+                backgroundGradientFrom: '#647DEE',
+                backgroundGradientTo: '#7F53AC',
+                decimalPlaces: 2, // optional, defaults to 2dp
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                style: {
+                  borderRadius: 16
+                }
+              }}
+              bezier
+              style={{
+                marginVertical: 8,
+                borderRadius: 16
+              }}
+            />
+          </View>
         </View>
       </ScrollView>
     );
@@ -151,5 +233,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8EAF6',
     alignItems: 'center',
     justifyContent: 'center',
-  },
+  }
 });
