@@ -32,6 +32,8 @@ import IndexGroupScreen from './screens/groups/IndexGroupScreen';
 import UpdateGroupScreen from './screens/groups/UpdateGroupScreen';
 import SearchGroupScreen from './screens/groups/SearchGroupScreen';
 import DayRecordsScreen from './screens/DayRecordsScreen';
+import UpdateTransactionGroupScreen from './screens/groups/transactions/DetailTransactionScreen';
+import EditTransactionScreen from './screens/groups/transactions/EditTransactionScreen';
 
 const AuthStackNavigator = createStackNavigator({
   Welcome: WelcomeScreen,
@@ -130,7 +132,9 @@ const AppStackNavigator = createStackNavigator({
   IndexGroupScreen: IndexGroupScreen,
   UpdateGroupScreen: UpdateGroupScreen,
   SearchGroupScreen: SearchGroupScreen,
-  DayRecordsScreen: DayRecordsScreen
+  DayRecordsScreen: DayRecordsScreen,
+  UpdateTransactionGroupScreen: UpdateTransactionGroupScreen,
+  EditTransactionScreen: EditTransactionScreen
 });
 
 // const AppDrawerNavigator = createDrawerNavigator({

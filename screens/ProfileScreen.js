@@ -249,6 +249,7 @@ export default class ProfileScreen extends Component {
               <Text style={{ fontWeight: 'normal' }}>Logout</Text>
             </Button>
           </View>
+          <Text>Wangku 1.0 - Fariz</Text>
         </View>
       </ScrollView>
     );
