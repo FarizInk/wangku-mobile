@@ -169,7 +169,7 @@ export default class HomeGroupScreen extends Component {
           </Row>
 
           <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginBottom: 5, marginTop: 10 }}>
-            <Button styleName="secondary">
+            <Button styleName="secondary" onPress={() => this.props.navigation.navigate('DayRecordsScreen')}>
               <Text>Day Records</Text>
             </Button>
             <Text style={{ textAlign: 'right' }}>{ this.state.monthnow }</Text>

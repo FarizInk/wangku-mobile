@@ -19,6 +19,7 @@ import AddGroupTransactionScreen from './transactions/AddTransactionScreen';
 import AddMemberScreen from './members/AddMemberScreen';
 import DetailTransactionScreen from './transactions/DetailTransactionScreen';
 import EditTransactionScreen from './transactions/EditTransactionScreen';
+import DayRecordsScreen from './DayRecordsScreen';
 
 const GroupTabNavigator = createMaterialTopTabNavigator({
   Home: {
@@ -84,7 +85,8 @@ const GroupStackNavigator = createStackNavigator({
   AddGroupTransactionScreen: AddGroupTransactionScreen,
   AddMemberScreen: AddMemberScreen,
   DetailTransactionScreen: DetailTransactionScreen,
-  EditTransactionScreen: EditTransactionScreen
+  EditTransactionScreen: EditTransactionScreen,
+  DayRecordsScreen: DayRecordsScreen
 });
 
 export default class IndexGroupScreen extends Component {
