@@ -44,7 +44,7 @@ export default class HomeScreen extends Component {
     this.loadApp()
   }
 
-  state = { token: '', refreshing: false, isLoading: true }
+  state = { token: '', refreshing: false, isLoading: true, dayrecord: [] }
 
   async loadApp() {
     const apiToken = await AsyncStorage.getItem('apiToken')
@@ -71,17 +71,15 @@ export default class HomeScreen extends Component {
         today: response.data.today,
         day_income: response.data.day_income,
         day_spending: response.data.day_spending,
+        daynow: response.data.daynow,
+        dayrecord: response.data.day_record,
+        monthnow: response.data.monthnow,
         isLoading: false
       }))
       .catch(error => console.log(error.response.data));
     let balance = this.formatRupiah(this.state.balance);
     this.setState({ balance: balance });
-
-    await axios.get('http://wangku.herokuapp.com/api/datenow/', config)
-      .then(response => this.setState({
-        datenow: response.data.datenow
-      }))
-      .catch(error => console.log(error.response.data));
+    console.log(this.state.dayrecord);
   }
 
   async componentWillMount() {
@@ -155,7 +153,7 @@ export default class HomeScreen extends Component {
 
           <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginBottom: 5, marginTop: 10 }}>
             <Subtitle>Today</Subtitle>
-            <Text style={{ textAlign: 'right' }}>{ this.state.datenow }</Text>
+            <Text style={{ textAlign: 'right' }}>{ this.state.daynow }</Text>
           </Row>
 
           <Row style={{ margin: 0, padding: 0, backgroundColor: 'transparent' }}>
@@ -169,18 +167,29 @@ export default class HomeScreen extends Component {
             </View>
           </Row>
 
+          <Row style={{ backgroundColor: 'transparent', paddingVertical: 0, paddingHorizontal: 20, marginBottom: 5, marginTop: 10 }}>
+            <Button styleName="secondary">
+              <Text>Day Records</Text>
+            </Button>
+            <Text style={{ textAlign: 'right' }}>{ this.state.monthnow }</Text>
+          </Row>
           <View>
             <LineChart
               data={{
-                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                labels: [
+                  this.state.dayrecord.day4.nameday,
+                  this.state.dayrecord.day3.nameday,
+                  this.state.dayrecord.day2.nameday,
+                  this.state.dayrecord.day1.nameday,
+                  this.state.dayrecord.day0.nameday
+                ],
                 datasets: [{
                   data: [
-                    '+10.000',
-                    '+20.000',
-                    '+30.000',
-                    '-10.000',
-                    '-20.000',
-                    '-30.000'
+                    this.state.dayrecord.day4.value,
+                    this.state.dayrecord.day3.value,
+                    this.state.dayrecord.day2.value,
+                    this.state.dayrecord.day1.value,
+                    this.state.dayrecord.day0.value
                   ]
                 }]
               }}
